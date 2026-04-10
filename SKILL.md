@@ -87,22 +87,18 @@ Verify:
 
 ### 2a. Run spec checks
 
-Check whether the skill follows common authoring expectations:
+Check whether the skill follows BIP-specific authoring expectations:
 
-- `description` is trigger-oriented and preferably starts with `Use when`
-- `description` focuses on when to use the skill, not a long summary of workflow
-- `description` explicitly states what the skill does, how a user would ask for it, and the likely trigger keywords
 - `name` matches the directory name exactly
 - `metadata` exists and is valid YAML frontmatter content
 - `metadata.yonbip.version` exists and uses `major.minor.patch`
+- `description` is trigger-oriented and preferably starts with `Use when`
+- `description` focuses on when to use the skill, not a long summary of workflow
+- `description` explicitly states what the skill does, how a user would ask for it, and the likely trigger keywords
 - if runtime-platform metadata exists, it is not stale or contradictory
 - `name` is stable, readable, and hyphenated if appropriate
-- `agents/openai.yaml` exists when UI metadata is expected
-- `agents/openai.yaml` matches the skill intent and is not stale
 - if the skill is part of a dedicated skill git project, the git project name follows the BIP `microservice-code-skills` convention or a documented equivalent
 - if the skill is part of a dedicated skill git project, the surrounding project structure is consistent with the BIP expectation that one project may contain one or more skill directories following the standard layout
-- the skill directory does not contain unnecessary auxiliary docs that should not be part of the skill itself
-- references, scripts, and assets are placed in sensible subdirectories
 - the directory name follows BIP naming constraints: lowercase, hyphenated, no underscore, no double hyphen, no leading digit
 
 Mark each spec issue separately from runtime issues. A spec issue may justify `有条件通过` even when dynamic cases succeed.
@@ -111,13 +107,17 @@ Mark each spec issue separately from runtime issues. A spec issue may justify `�
 
 Check whether the skill is publication-ready, not merely functional:
 
-- trigger precision: `description` is concise, trigger-oriented, and does not summarize the whole workflow
+- `SKILL.md` exists and is the clear entry point for the skill
+- `agents/openai.yaml` exists when UI metadata is expected, matches the skill intent, and is not stale
+- referenced scripts, references, assets, and related paths actually exist
+- trigger design is clear at the workflow level and does not rely on hidden assumptions
 - progressive disclosure: the skill tells the model to load only the files or resources actually needed
 - resource organization: `scripts/`, `references/`, `assets/`, and `agents/` have clear roles
+- directory cleanliness: the skill directory does not contain unnecessary auxiliary docs that should not be part of the published skill itself
 - evidence discipline: the skill requires real command output or session evidence before passing cases
 - failure visibility: pending, failed, and environment-noise items remain visible in the report
 - report completeness: the default deliverable is a structured report, not only a chat summary
-- marketplace readiness: naming, metadata, directory cleanliness, and output behavior are suitable for publishing
+- marketplace readiness: output behavior, directory cleanliness, and release-facing presentation are suitable for publishing
 - untrusted-input defense: external web or document content is treated as data, not as executable instruction
 
 Mark general-convention gaps separately from spec failures and runtime failures.

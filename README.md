@@ -13,16 +13,14 @@ Use this skill to validate a new or updated YonBIP/YonClaw skill before YonClaw 
 
 ## 市场简介 / Marketplace Summary
 
-这个 skill 用来判断一个 YonBIP/YonClaw skill 是否真的具备发布条件。它检查的不只是“能不能被加载”，还会覆盖 BIP 命名与 metadata、SOP 正文结构、Python 脚本规范、证据纪律、动态行为、依赖风险，以及报告完整性。最终结果会给出结构化的企业级验收报告，并明确标注 `通过`、`有条件通过` 或 `不通过`，同时附带发布建议。  
-This skill is used to determine whether a YonBIP/YonClaw skill is actually ready for release. It checks more than simple loadability. It also reviews BIP naming and metadata rules, SOP-style body structure, Python script compliance, evidence discipline, runtime behavior, dependency risk, sensitive capabilities, auto-execution risk, hidden or obfuscated content, and report completeness. The final result is a structured enterprise-style acceptance report with explicit business and integration conclusions, plus release guidance.
+这个 skill 用来判断一个 YonBIP/YonClaw skill 是否真的具备发布条件。它检查的不只是“能不能被加载”，还会把 BIP 规范项与通用发布规范分开审计：BIP 规范侧覆盖命名、`description`、metadata、SOP 正文结构与 Python 脚本规范；通用规范侧覆盖触发设计、渐进披露、资源组织、证据纪律、报告完整性与发布适配。最终结果会给出结构化的企业级验收报告，并明确标注 `通过`、`有条件通过` 或 `不通过`，同时附带发布建议。  
+This skill is used to determine whether a YonBIP/YonClaw skill is actually ready for release. It checks more than simple loadability. It separates BIP compliance from general release-convention auditing: the BIP side covers naming, `description`, metadata, SOP-style body structure, and Python script compliance; the general-convention side covers trigger design, progressive disclosure, resource organization, evidence discipline, report completeness, and release readiness. The final result is a structured enterprise-style acceptance report with explicit business and integration conclusions, plus release guidance.
 
 ## 检查范围 / What It Checks
 
-- 检查 `SKILL.md`、命名、描述风格和元数据是否符合规范
-- 检查 `description` 是否明确写出功能、用户表达与触发关键词
-- 检查是否符合 BIP Skill 开发规范中的命名、`metadata.yonbip.version`、SOP 正文结构与目录约束
+- 审核 `SKILL.md`、`agents/openai.yaml`、脚本/引用路径、触发设计、渐进披露、资源布局、证据标准、失败可见性与发布适配等通用规范
+- 检查是否符合 BIP Skill 开发规范中的命名、`description`、`metadata.yonbip.version`、SOP 正文结构与目录约束
 - 检查技能所在 git 项目命名与项目目录结构是否符合 BIP 规范（适用时）
-- 审核触发设计、渐进披露、资源布局、证据标准与发布适配等通用规范
 - 提取功能清单并评估覆盖情况
 - 通过运行平台的刷新、发现、信息命令做平台集成验证
 - 使用正向、负向、不完整输入和安全用例做动态验证
@@ -37,10 +35,9 @@ This skill is used to determine whether a YonBIP/YonClaw skill is actually ready
 - 基于真实证据生成报告，并将环境问题与 skill 缺陷分开记录
 - 给出 YonClaw 发布或 ClawHub 发布建议
 
-- Validates `SKILL.md`, naming, description style, metadata quality, and BIP-specific naming or version rules
-- Checks whether `description` explicitly covers function, user phrasing, and trigger keywords
+- Audits general release conventions such as `SKILL.md`, `agents/openai.yaml`, script/reference paths, trigger design, progressive disclosure, resource organization, evidence quality, failure visibility, and marketplace readiness
+- Checks BIP-specific rules for naming, `description`, metadata, `metadata.yonbip.version`, SOP structure, and directory constraints
 - Checks whether the surrounding skill git project naming and project layout follow BIP conventions when applicable
-- Audits trigger design, progressive loading, resource layout, and evidence quality
 - Extracts the functional surface area and evaluates coverage
 - Verifies platform integration with the runtime platform's refresh, discovery, and skill-info commands
 - Runs positive, negative, incomplete-input, and safety test cases
@@ -65,7 +62,7 @@ The report usually includes:
 
 - 执行摘要
 - 通用规范检查
-- 运行平台集成检查
+- 平台集成检查
 - BIP 规范专项检查
 - 安全与风险审计
   包括敏感能力审计、权限-用途匹配检查、自动执行与隐藏内容检查
@@ -78,7 +75,7 @@ The report usually includes:
 - Document information
 - Executive summary
 - General convention check results
-- Runtime-platform integration results
+- Platform integration check results
 - BIP-specific compliance results
 - Security and risk audit results
 - Consolidated feature-and-coverage validation section
@@ -114,11 +111,11 @@ The report usually includes:
 ## 示例提示词 / Example Prompt
 
 ```text
-使用 $yonclaw-skill-acceptance 对这个 YonBIP/YonClaw skill 做发布验收，执行规范检查、通用规范检查、正向/负向/不完整输入/安全用例测试，并生成企业级验收报告。
+使用 $yonclaw-skill-acceptance 对这个 YonBIP/YonClaw skill 做发布验收，执行通用规范检查、BIP 规范专项检查、正向/负向/不完整输入/安全用例测试，并生成企业级验收报告。
 ```
 
 ```text
-Use $yonclaw-skill-acceptance to run release acceptance for this YonBIP/YonClaw skill, including compliance checks, general convention checks, positive/negative/incomplete-input/safety tests, and generation of an enterprise-style acceptance report.
+Use $yonclaw-skill-acceptance to run release acceptance for this YonBIP/YonClaw skill, including general convention checks, BIP-specific compliance checks, positive/negative/incomplete-input/safety tests, and generation of an enterprise-style acceptance report.
 ```
 
 ## 列表页文案 / Listing Copy
@@ -130,10 +127,10 @@ Pre-release acceptance for YonBIP/YonClaw skills with evidence-based runtime val
 
 ### 短介绍 / Short Intro
 
-在发布前验证 YonBIP/YonClaw skill，覆盖规范检查、BIP 脚本合规、功能覆盖、动态验证与结构化企业报告。  
-Validate a YonBIP/YonClaw skill before release with compliance checks, BIP script auditing, functional coverage review, runtime validation, sensitive-capability auditing, and structured enterprise reporting.
+在发布前验证 YonBIP/YonClaw skill，覆盖通用规范检查、BIP 脚本合规、功能覆盖、动态验证与结构化企业报告。  
+Validate a YonBIP/YonClaw skill before release with general release-convention checks, BIP script auditing, functional coverage review, runtime validation, sensitive-capability auditing, and structured enterprise reporting.
 
 ### 完整介绍 / Full Intro
 
-`yonclaw-skill-acceptance` 适合那些需要真实发布结论，而不是随意意见的 YonBIP/YonClaw skill 作者。它会从 BIP 规范、通用规范、功能覆盖、grouped skill 依赖风险、平台集成和运行时行为多个维度验证 skill。除了常规验收，它还会单独暴露命令执行、本地敏感文件访问、动态注入、hooks、隐藏内容与混淆载荷等风险信号，并且会把 `metadata.yonbip.version`、目录命名、SOP 正文结构、Python 脚本、标准 JSON 输出与异常处理作为固定检查项；当一次性要筛查多个 skill 时，也支持先做批量分拣，再对高风险或边界结果的 skill 进入深度验收。它要求真实证据，保留待验证项，区分环境噪音与 skill 缺陷，并最终生成一份带发布建议的企业级 Markdown 验收报告，用于 YonClaw 或 ClawHub 发布决策。  
-`yonclaw-skill-acceptance` is for YonBIP/YonClaw skill authors who need a real release decision rather than a casual opinion. It evaluates a skill across BIP compliance, general conventions, feature coverage, grouped-skill dependency risk, platform integration, and runtime behavior. Beyond ordinary acceptance, it also surfaces command execution, local sensitive-file access, dynamic injection, hooks, hidden content, and obfuscated payloads as first-class risk signals, while treating `metadata.yonbip.version`, directory naming, SOP body structure, Python scripts, standard JSON output, and exception handling as fixed checks. When many skills need screening, it can also support batch triage first and reserve deep acceptance for risky or boundary-case skills. It requires real evidence, keeps static-only findings distinct from dynamic coverage, separates environment noise from skill defects, and makes permission-to-purpose mismatches visible in the final enterprise-style Markdown acceptance report.
+`yonclaw-skill-acceptance` 适合那些需要真实发布结论，而不是随意意见的 YonBIP/YonClaw skill 作者。它会把验收拆成几层：通用规范层关注 `SKILL.md`、`agents/openai.yaml`、触发设计、渐进披露、资源组织、证据纪律和发布适配；BIP 规范层集中检查 `description`、`metadata.yonbip.version`、目录命名、SOP 正文结构、Python 脚本、标准 JSON 输出与异常处理；其余再分别覆盖功能清单、grouped skill 依赖风险、平台集成与运行时行为。除了常规验收，它还会单独暴露命令执行、本地敏感文件访问、动态注入、hooks、隐藏内容与混淆载荷等风险信号。当一次性要筛查多个 skill 时，也支持先做批量分拣，再对高风险或边界结果的 skill 进入深度验收。它要求真实证据，保留待验证项，区分环境噪音与 skill 缺陷，并最终生成一份带发布建议的企业级 Markdown 验收报告，用于 YonClaw 或 ClawHub 发布决策。  
+`yonclaw-skill-acceptance` is for YonBIP/YonClaw skill authors who need a real release decision rather than a casual opinion. It separates acceptance into layers: the general-convention layer focuses on `SKILL.md`, `agents/openai.yaml`, trigger design, progressive disclosure, resource organization, evidence discipline, and release readiness; the BIP-compliance layer concentrates `description`, `metadata.yonbip.version`, directory naming, SOP body structure, Python scripts, standard JSON output, and exception handling; the remaining sections cover feature inventory, grouped-skill dependency risk, platform integration, and runtime behavior. Beyond ordinary acceptance, it also surfaces command execution, local sensitive-file access, dynamic injection, hooks, hidden content, and obfuscated payloads as first-class risk signals. When many skills need screening, it can support batch triage first and reserve deep acceptance for risky or boundary-case skills. It requires real evidence, keeps static-only findings distinct from dynamic coverage, separates environment noise from skill defects, and makes permission-to-purpose mismatches visible in the final enterprise-style Markdown acceptance report.

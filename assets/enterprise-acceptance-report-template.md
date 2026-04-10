@@ -69,22 +69,12 @@
 | 检查项 | 结果 | 说明 |
 |---|---|---|
 | `SKILL.md` 存在 | `<pass-or-fail>` | `<note>` |
-| `name` 合规 | `<pass-or-fail>` | `<note>` |
-| `description` 存在 | `<pass-or-fail>` | `<note>` |
-| `description` 触发导向 | `<pass-or-fail>` | `<note>` |
-| `description` 是否符合 `Use when` 风格 | `<pass-or-fail>` | `<note>` |
-| `description` 是否写明功能/用户表达/触发关键词 | `<pass-or-fail>` | `<note>` |
-| `metadata` 存在 | `<pass-or-fail>` | `<note>` |
-| `metadata.yonbip.version` 合规 | `<pass-or-fail-or-na>` | `<note>` |
-| git 项目命名符合 BIP 规范 | `<pass-or-fail-or-na>` | `<note>` |
-| git 项目目录结构符合 BIP 规范 | `<pass-or-fail-or-na>` | `<note>` |
-| 目录命名符合 BIP 规范 | `<pass-or-fail>` | `<note>` |
-| 目录结构合理 | `<pass-or-fail>` | `<note>` |
 | `agents/openai.yaml` 一致性 | `<pass-or-fail-or-na>` | `<note>` |
 | 脚本/引用路径有效 | `<pass-or-fail-or-na>` | `<note>` |
 | 触发设计清晰 | `<pass-or-fail>` | `<note>` |
 | 渐进披露合理 | `<pass-or-fail>` | `<note>` |
 | 资源组织清晰 | `<pass-or-fail>` | `<note>` |
+| 目录洁净度 | `<pass-or-fail-or-na>` | `<note>` |
 | 证据标准清晰 | `<pass-or-fail>` | `<note>` |
 | 失败项可见 | `<pass-or-fail>` | `<note>` |
 | 报告输出稳定 | `<pass-or-fail>` | `<note>` |
@@ -103,6 +93,16 @@
 
 | 检查项 | 结果 | 说明 |
 |---|---|---|
+| `name` 合规 | `<pass-or-fail>` | `<note>` |
+| `description` 存在 | `<pass-or-fail>` | `<note>` |
+| `description` 触发导向 | `<pass-or-fail>` | `<note>` |
+| `description` 是否符合 `Use when` 风格 | `<pass-or-fail>` | `<note>` |
+| `description` 是否写明功能/用户表达/触发关键词 | `<pass-or-fail>` | `<note>` |
+| `metadata` 存在 | `<pass-or-fail>` | `<note>` |
+| `metadata.yonbip.version` 合规 | `<pass-or-fail-or-na>` | `<note>` |
+| git 项目命名符合 BIP 规范 | `<pass-or-fail-or-na>` | `<note>` |
+| git 项目目录结构符合 BIP 规范 | `<pass-or-fail-or-na>` | `<note>` |
+| 目录命名符合 BIP 规范 | `<pass-or-fail>` | `<note>` |
 | 正文是否为 SOP 结构 | `<pass-or-fail>` | `<note>` |
 | 工具边界声明 | `<pass-or-fail>` | `<note>` |
 | 数据边界声明 | `<pass-or-fail>` | `<note>` |
