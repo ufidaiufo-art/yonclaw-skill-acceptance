@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Editor state
+.idea/
+.vscode/
+
+# Local archives
+*.zip

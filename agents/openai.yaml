@@ -1,0 +1,4 @@
+interface:
+  display_name: "YonClaw Skill Acceptance"
+  short_description: "Release-gate validation for YonBIP/YonClaw skills"
+  default_prompt: "Use $yonclaw-skill-acceptance to run a release-gate audit for this YonBIP/YonClaw skill, including BIP spec checks, best-practice review, feature coverage, script compliance checks, dynamic acceptance, and a strict enterprise Markdown acceptance report."
