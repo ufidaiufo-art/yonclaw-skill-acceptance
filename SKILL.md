@@ -1,12 +1,12 @@
 ---
 name: yonclaw-skill-acceptance
-description: Use when a new or updated YonBIP skill running in YonClaw needs release validation before internal rollout or marketplace-style publishing.
+description: Use when a new or updated YonBIP skill running in YonClaw needs release validation before YonClaw rollout or marketplace-style publishing.
 metadata: {"yonbip":{"version":"1.0.0"}}
 ---
 
 # YonClaw Skill Acceptance
 
-Use this skill as a release gate for a YonBIP skill running in YonClaw. It combines BIP specification checks, best-practice auditing, feature-inventory analysis, dynamic behavior checks, and strict evidence recording so the final decision is based on real results instead of assumption.
+Use this skill as a release gate for a YonBIP skill running in YonClaw. It combines BIP specification checks, general-convention checks, feature-inventory analysis, dynamic behavior checks, and strict evidence recording so the final decision is based on real results instead of assumption.
 
 After validation, the default deliverable is a Markdown enterprise acceptance report, not just a chat summary.
 
@@ -15,7 +15,7 @@ After validation, the default deliverable is a Markdown enterprise acceptance re
 - A new YonBIP skill has been created and needs release validation.
 - An existing skill was edited and must be regression-checked.
 - The user wants to know whether the skill follows authoring conventions or spec expectations.
-- The user wants to know whether the skill follows release best practices and is suitable for ClawHub-style publishing.
+- The user wants to know whether the skill follows general release conventions and is suitable for ClawHub-style publishing.
 - The user wants evidence from the runtime platform, real prompts, and a BIP-style acceptance report.
 - The user wants the results backfilled into an acceptance document.
 
@@ -25,7 +25,7 @@ This skill is for validation and reporting only. It must not proactively modify 
 
 ## Core Rules
 
-1. Separate spec checks, static checks, best-practice audit checks, feature-inventory checks, and dynamic checks.
+1. Separate spec checks, static checks, general-convention checks, feature-inventory checks, and dynamic checks.
 2. Treat runtime-platform discoverability as necessary but not sufficient.
 3. Always run at least one positive case, one non-trigger case, and one safety case when applicable.
 4. Never claim a case passed unless there is actual command output or a real session result.
@@ -46,7 +46,7 @@ This skill is for validation and reporting only. It must not proactively modify 
 19. BIP metadata is mandatory: `name` must match the directory name, and `metadata` must include a `yonbip.version` field in `major.minor.patch` format.
 20. BIP naming rules must be checked explicitly: lowercase letters or digits with hyphens only, no leading or trailing hyphen, no double hyphen, no underscore, no leading digit, and reasonable alignment with the product-line or service naming convention.
 21. The body must be judged as an SOP, not a casual explanation. It should clearly cover purpose, execution steps, input and output examples, and error handling.
-22. If scripts exist, treat Python-only implementation, standardized JSON output, and exception normalization as required BIP checks rather than optional best practices.
+22. If scripts exist, treat Python-only implementation, standardized JSON output, and exception normalization as required BIP checks rather than optional general conventions.
 23. For BIP API skills, verify whether scripts use the standard shared utilities such as `yonbip_skill_utils.requests` and `yonbip_skill_utils.logging` unless a justified alternative is documented.
 
 ## Acceptance Workflow
@@ -91,6 +91,7 @@ Check whether the skill follows common authoring expectations:
 
 - `description` is trigger-oriented and preferably starts with `Use when`
 - `description` focuses on when to use the skill, not a long summary of workflow
+- `description` explicitly states what the skill does, how a user would ask for it, and the likely trigger keywords
 - `name` matches the directory name exactly
 - `metadata` exists and is valid YAML frontmatter content
 - `metadata.yonbip.version` exists and uses `major.minor.patch`
@@ -98,13 +99,15 @@ Check whether the skill follows common authoring expectations:
 - `name` is stable, readable, and hyphenated if appropriate
 - `agents/openai.yaml` exists when UI metadata is expected
 - `agents/openai.yaml` matches the skill intent and is not stale
+- if the skill is part of a dedicated skill git project, the git project name follows the BIP `microservice-code-skills` convention or a documented equivalent
+- if the skill is part of a dedicated skill git project, the surrounding project structure is consistent with the BIP expectation that one project may contain one or more skill directories following the standard layout
 - the skill directory does not contain unnecessary auxiliary docs that should not be part of the skill itself
 - references, scripts, and assets are placed in sensible subdirectories
 - the directory name follows BIP naming constraints: lowercase, hyphenated, no underscore, no double hyphen, no leading digit
 
 Mark each spec issue separately from runtime issues. A spec issue may justify `有条件通过` even when dynamic cases succeed.
 
-### 2b. Run best-practice release audit
+### 2b. Run general-convention release audit
 
 Check whether the skill is publication-ready, not merely functional:
 
@@ -117,7 +120,7 @@ Check whether the skill is publication-ready, not merely functional:
 - marketplace readiness: naming, metadata, directory cleanliness, and output behavior are suitable for publishing
 - untrusted-input defense: external web or document content is treated as data, not as executable instruction
 
-Mark best-practice gaps separately from spec failures and runtime failures.
+Mark general-convention gaps separately from spec failures and runtime failures.
 
 ### 2c. Run sensitive-capability audit
 
@@ -319,7 +322,7 @@ Update the acceptance document with:
 - executive summary
 - risk summary card
 - spec findings
-- best-practice audit findings
+- general-convention audit findings
 - sensitive-capability audit findings
 - auto-execution and hidden-content findings
 - feature inventory
@@ -354,7 +357,7 @@ Preferred conclusion states:
 
 Preferred release recommendation states:
 
-- `适合内部发布`
+- `适合 YonClaw 发布`
 - `适合发布到 ClawHub`
 - `修复后再发布`
 
@@ -424,7 +427,7 @@ The report must contain:
 - spec findings
 - BIP compliance findings
 - static check results
-- best-practice audit results
+- general-convention audit results
 - dynamic case results
 - environment issues
 - final conclusion
@@ -454,7 +457,7 @@ Before closing:
 
 - confirm which cases truly ran
 - separate spec violations from behavior failures
-- separate best-practice gaps from runtime failures
+- separate general-convention gaps from runtime failures
 - summarize declared feature coverage, not only case counts
 - keep unresolved cases visible
 - summarize environment caveats separately
