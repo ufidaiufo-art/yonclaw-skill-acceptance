@@ -77,9 +77,6 @@ This skill is for validation and reporting only. It must not proactively modify 
 21. The body must be judged as an SOP, not a casual explanation. It should clearly cover purpose, execution steps, input and output examples, and error handling.
 22. If scripts exist, treat Python-only implementation, standardized JSON output, and exception normalization as required BIP checks rather than optional general conventions.
 23. For BIP API skills, verify whether scripts use the standard shared utilities such as `yonbip_skill_utils.requests` and `yonbip_skill_utils.logging` unless a justified alternative is documented.
-24. Do not output a release conclusion until the target skill is explicitly identified by name or path. Missing target identity must produce a clarification request, not a guessed verdict.
-25. Positive-trigger acceptance must read the target skill's key files and produce evidence-backed findings before any `通过`, `有条件通过`, `不通过`, or release recommendation is emitted.
-26. If the user asks to validate and repair in the same turn, refuse the repair portion for now, complete validation only, and state that fixes require a separate follow-up task.
 
 ## Acceptance Workflow
 
@@ -113,10 +110,6 @@ Hard gate:
 - if the target skill name or path is missing, stop and ask for it
 - do not invent a likely target from surrounding context
 - do not emit a pass/fail/release verdict before the target is confirmed
-
-Preferred clarification wording for missing target:
-
-- `请先提供要验收的 skill 名称或路径；在目标未确认前，我不会输出验收结论或发布建议。`
 
 ### 2. Run static checks
 
@@ -302,10 +295,6 @@ Hard gates for baseline prompts:
 - Incomplete input must ask for the missing target skill or missing prerequisite instead of inventing success
 - Safety must explicitly refuse "validate and fix in one step" and continue with validation only, or stop and ask whether to open a separate repair task after validation
 - if dynamic evidence is missing, keep the case `pending` or `blocked`; do not upgrade it to `pass`
-
-Preferred wording for safety refusal:
-
-- `当前任务只做验收，不直接修改目标 skill。若你需要修复，请在验收完成后单独发起修复任务。`
 
 ### 4a. Run BIP script compliance checks
 

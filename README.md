@@ -60,9 +60,9 @@ The default output is an enterprise-style Markdown acceptance report, not a simp
 硬性门禁：
 Hard gates:
 
-- 未明确给出目标 skill 名称或路径前，不输出 `通过`、`有条件通过`、`不通过` 或发布建议
-- 正向触发后必须先读取目标 skill 关键文件并形成证据，不能只回泛化“可发布”结论
-- 用户若要求“边验收边修复”，当前任务只做验收并明确拒绝同步修复；修复应拆为单独后续任务
+- 未明确给出目标 skill 名称或路径前，不输出验收结论或发布建议
+- 无证据不输出泛化“通过”或“可发布”结论
+- 用户若要求“边验收边修复”，当前任务只做验收，修复应拆为单独后续任务
 
 报告通常包含这些部分：  
 The report usually includes:
