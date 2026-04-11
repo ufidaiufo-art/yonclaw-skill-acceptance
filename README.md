@@ -57,6 +57,13 @@ This skill is used to determine whether a YonBIP/YonClaw skill is actually ready
 默认输出是一份企业级 Markdown 验收报告，而不是简单的聊天回复。  
 The default output is an enterprise-style Markdown acceptance report, not a simple chat reply.
 
+硬性门禁：
+Hard gates:
+
+- 未明确给出目标 skill 名称或路径前，不输出 `通过`、`有条件通过`、`不通过` 或发布建议
+- 正向触发后必须先读取目标 skill 关键文件并形成证据，不能只回泛化“可发布”结论
+- 用户若要求“边验收边修复”，当前任务只做验收并明确拒绝同步修复；修复应拆为单独后续任务
+
 报告通常包含这些部分：  
 The report usually includes:
 
@@ -118,6 +125,21 @@ The report usually includes:
 Use $yonclaw-skill-acceptance to run release acceptance for this YonBIP/YonClaw skill, including general convention checks, BIP-specific compliance checks, positive/negative/incomplete-input/safety tests, and generation of an enterprise-style acceptance report.
 ```
 
+```text
+用 yonclaw-skill-acceptance 做验收。
+预期：先追问要验收的 skill 名称或路径，而不是直接输出结论。
+```
+
+```text
+使用 $yonclaw-skill-acceptance 验收 yonclaw-skill-acceptance，并顺手直接修改你发现的问题。
+预期：明确说明“当前只做验收，不直接修改目标 skill；如需修复，请在验收完成后单独发起修复任务”。
+```
+
+```text
+如果只完成了静态检查、没有拿到动态证据或关键命令结果，
+预期：只能输出 `blocked`、`pending`、`有条件通过` 或 `不通过`，不能直接给 `通过` 或“可发布”。
+```
+
 ## 列表页文案 / Listing Copy
 
 ### 一句话介绍 / One-Line Intro
@@ -133,4 +155,4 @@ Validate a YonBIP/YonClaw skill before release with general release-convention c
 ### 完整介绍 / Full Intro
 
 `yonclaw-skill-acceptance` 适合那些需要真实发布结论，而不是随意意见的 YonBIP/YonClaw skill 作者。它会把验收拆成几层：通用规范层关注 `SKILL.md`、`agents/openai.yaml`、触发设计、渐进披露、资源组织、证据纪律和发布适配；BIP 规范层集中检查 `description`、`metadata.yonbip.version`、目录命名、SOP 正文结构、Python 脚本、标准 JSON 输出与异常处理；其余再分别覆盖功能清单、grouped skill 依赖风险、平台集成与运行时行为。除了常规验收，它还会单独暴露命令执行、本地敏感文件访问、动态注入、hooks、隐藏内容与混淆载荷等风险信号。当一次性要筛查多个 skill 时，也支持先做批量分拣，再对高风险或边界结果的 skill 进入深度验收。它要求真实证据，保留待验证项，区分环境噪音与 skill 缺陷，并最终生成一份带发布建议的企业级 Markdown 验收报告，用于 YonClaw 或 ClawHub 发布决策。  
-`yonclaw-skill-acceptance` is for YonBIP/YonClaw skill authors who need a real release decision rather than a casual opinion. It separates acceptance into layers: the general-convention layer focuses on `SKILL.md`, `agents/openai.yaml`, trigger design, progressive disclosure, resource organization, evidence discipline, and release readiness; the BIP-compliance layer concentrates `description`, `metadata.yonbip.version`, directory naming, SOP body structure, Python scripts, standard JSON output, and exception handling; the remaining sections cover feature inventory, grouped-skill dependency risk, platform integration, and runtime behavior. Beyond ordinary acceptance, it also surfaces command execution, local sensitive-file access, dynamic injection, hooks, hidden content, and obfuscated payloads as first-class risk signals. When many skills need screening, it can support batch triage first and reserve deep acceptance for risky or boundary-case skills. It requires real evidence, keeps static-only findings distinct from dynamic coverage, separates environment noise from skill defects, and makes permission-to-purpose mismatches visible in the final enterprise-style Markdown acceptance report.
+`yonclaw-skill-acceptance` is for YonBIP/YonClaw skill authors who need a real release decision rather than a casual opinion. It separates acceptance into layers: the general-convention layer focuses on `SKILL.md`, `agents/openai.yaml`, trigger design, progressive disclosure, resource organization, evidence discipline, and release readiness; the BIP-compliance layer concentrates `description`, `metadata.yonbip.version`, directory naming, SOP body structure, Python scripts, standard JSON output, and exception handling; the remaining sections cover feature inventory, grouped-skill dependency risk, platform integration, and runtime behavior. Beyond ordinary acceptance, it also surfaces command execution, local sensitive-file access, dynamic injection, hooks, hidden content, and obfuscated payloads as first-class risk signals. It must confirm the target before concluding, must base release verdicts on real evidence, and must not merge validation with repair in a single acceptance pass. When many skills need screening, it can support batch triage first and reserve deep acceptance for risky or boundary-case skills. It requires real evidence, keeps static-only findings distinct from dynamic coverage, separates environment noise from skill defects, and makes permission-to-purpose mismatches visible in the final enterprise-style Markdown acceptance report.

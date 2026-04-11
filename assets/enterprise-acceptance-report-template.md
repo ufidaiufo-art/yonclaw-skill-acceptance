@@ -148,17 +148,23 @@
 
 ## 9. 功能与覆盖验证
 
-### 9.1 功能清单
+### 9.1 功能清单与 Action Inventory
 
-| Feature ID | 功能名称 | 类型 | 来源证据 | 动态验证要求 | 备注 |
-|---|---|---|---|---|---|
-| F-01 | `<feature-name>` | `<core-operation-or-guardrail-or-output-rule>` | `<skill-line-or-script-ref>` | `<required-optional-blocked>` | `<note>` |
+| Feature ID | 功能/Action 名称 | 分类 | 来源证据 | 必要参数/前置条件 | 验证方式建议 | 备注 |
+|---|---|---|---|---|---|---|
+| F-01 | `<feature-or-action-name>` | `<READ-WRITE-STATE-SPECIAL-guardrail-output-rule>` | `<skill-line-or-schema-or-script-help>` | `<required-params-or-prerequisite>` | `<prompt-or-script-api-or-pytest-or-mixed>` | `<note>` |
+
+> 填写建议：
+>
+> - 对 API/脚本型 skill，优先按 action 颗粒度建表，而不是只写高层功能名。
+> - action 清单可来自 `SKILL.md`、`tool_schema.json`、脚本 `--help`、脚本源码中的显式分支。
+> - `READ / WRITE / STATE / SPECIAL` 用于真实业务动作；`guardrail / output-rule` 用于安全与输出约束。
 
 ### 9.2 覆盖矩阵
 
-| Feature ID | 关联用例 | 覆盖方式 | 当前状态 | 说明 |
-|---|---|---|---|---|
-| F-01 | `<TC-01, TC-05>` | `<dynamic-or-static-only-or-pending-or-out-of-scope>` | `<covered-or-static-only-or-pending-or-blocked-or-out-of-scope>` | `<note>` |
+| Feature ID | 关联用例/动作 | 覆盖方式 | 当前状态 | 证据来源 | 说明 |
+|---|---|---|---|---|---|
+| F-01 | `<TC-01 / action:list / pytest:test_xxx>` | `<prompt-dynamic-or-script-api-or-pytest-or-static-only>` | `<covered-or-static-only-or-pending-or-blocked-or-skipped-or-out-of-scope>` | `<run-id-or-command-or-test-output>` | `<note>` |
 
 > 判定规则：
 >
@@ -166,16 +172,33 @@
 > - `static-only`：仅有静态/规范/脚本层证据，不能等同于动态覆盖。
 > - `pending`：本轮计划验证但未执行完成，或缺前置条件。
 > - `blocked`：本轮因环境、账号、依赖或平台问题无法验证。
+> - `skipped`：本轮主动跳过，例如高风险写操作未获得确认，或明确只做 dry-run。
 > - `out-of-scope`：明确不在本轮范围内，且该收缩范围已记录。
 
 ### 9.3 动态用例结果
 
-| Case ID | 类型 | 输入摘要 | 预期 | 实际 | 结论 | 证据 |
-|---|---|---|---|---|---|---|
-| TC-01 | Positive | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending>` | `<run-id-or-note>` |
-| TC-02 | Negative | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending>` | `<run-id-or-note>` |
-| TC-03 | Incomplete Input | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending>` | `<run-id-or-note>` |
-| TC-04 | Safety | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending>` | `<run-id-or-note>` |
+| Case ID | 验证层 | 类型 | 输入/命令摘要 | 预期 | 实际 | 结论 | 证据 |
+|---|---|---|---|---|---|---|---|
+| TC-01 | `prompt` | Positive | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<run-id-or-note>` |
+| TC-02 | `prompt` | Negative | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<run-id-or-note>` |
+| TC-03 | `prompt` | Incomplete Input | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<run-id-or-note>` |
+| TC-04 | `prompt` | Safety | `<prompt-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<run-id-or-note>` |
+| TC-05 | `script/api` | `<READ-WRITE-STATE-SPECIAL>` | `<command-or-action-summary>` | `<expected-http-or-output>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<command-output-or-log>` |
+| TC-06 | `pytest` | Unit Test | `<pytest-summary>` | `<expected>` | `<actual>` | `<pass-fail-pending-blocked-skipped>` | `<pytest-output>` |
+
+> 记录建议：
+>
+> - `prompt`：用于触发、缺参、负向、安全等行为验证。
+> - `script/api`：用于真实脚本调用、HTTP 返回、dry-run 预览、action 级验证。
+> - `pytest`：用于代码级测试结果，不替代真实业务动作验证。
+> - 对 `WRITE / STATE` 类操作，若只做 dry-run，应在“实际”和“证据”中明确标注。
+> - 对 `401 / 403 / 404 / 500 / timeout / auth-missing / session-lock` 等情况，优先在“实际”里写清环境归因，不直接混成业务失败。
+
+### 9.3a API/端点映射表（适用于脚本/API 型 skill）
+
+| Action | Method | Endpoint/Path | 验证状态 | 证据 | 备注 |
+|---|---|---|---|---|---|
+| `<action>` | `<GET-POST-PUT-DELETE>` | `<endpoint-or-path>` | `<verified-error-dry-run-untested-blocked>` | `<response-or-command-evidence>` | `<note>` |
 
 ### 9.4 功能覆盖结论
 
@@ -183,9 +206,13 @@
 |---|---|
 | 声明功能总数 | `<feature-count>` |
 | 已动态覆盖 | `<dynamic-covered-count>` |
+| 其中 Prompt 验证 | `<prompt-covered-count>` |
+| 其中 Script/API 验证 | `<script-api-covered-count>` |
+| 其中 Pytest 验证 | `<pytest-covered-count>` |
 | 仅静态覆盖 | `<static-only-count>` |
 | 待补验证 | `<pending-count>` |
 | 环境阻塞 | `<blocked-count>` |
+| 主动跳过 | `<skipped-count>` |
 | 超出本轮范围 | `<out-of-scope-count>` |
 
 ```text

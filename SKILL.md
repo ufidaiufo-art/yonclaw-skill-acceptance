@@ -10,6 +10,35 @@ Use this skill as a release gate for a YonBIP skill running in YonClaw. It combi
 
 After validation, the default deliverable is a Markdown enterprise acceptance report, not just a chat summary.
 
+## Response Contract
+
+Apply these gates in order before giving any acceptance conclusion:
+
+1. confirm the target skill by explicit name or path
+2. read the target skill's key files
+3. collect evidence from checks or runtime results
+4. only then emit a verdict or release recommendation
+
+Hard rules:
+
+- if the target is missing, ask for it and stop there
+- if the user asks to validate and repair in one turn, refuse the repair portion for now
+- if evidence is missing, do not emit `通过` or `可发布`
+
+Required reply templates:
+
+- missing target:
+  - `请先提供要验收的 skill 名称或路径；在目标未确认前，我不会输出验收结论或发布建议。`
+- validate-and-fix request:
+  - `当前任务只做验收，不直接修改目标 skill。若你需要修复，请在验收完成后单独发起修复任务。`
+
+Disallowed shortcut behaviors:
+
+- generic `验收通过` without naming the checked target
+- generic `可直接发布` without evidence
+- treating static plausibility as dynamic proof
+- silently accepting repair work during validation
+
 ## When To Use
 
 - A new YonBIP skill has been created and needs release validation.
@@ -48,6 +77,9 @@ This skill is for validation and reporting only. It must not proactively modify 
 21. The body must be judged as an SOP, not a casual explanation. It should clearly cover purpose, execution steps, input and output examples, and error handling.
 22. If scripts exist, treat Python-only implementation, standardized JSON output, and exception normalization as required BIP checks rather than optional general conventions.
 23. For BIP API skills, verify whether scripts use the standard shared utilities such as `yonbip_skill_utils.requests` and `yonbip_skill_utils.logging` unless a justified alternative is documented.
+24. Do not output a release conclusion until the target skill is explicitly identified by name or path. Missing target identity must produce a clarification request, not a guessed verdict.
+25. Positive-trigger acceptance must read the target skill's key files and produce evidence-backed findings before any `通过`, `有条件通过`, `不通过`, or release recommendation is emitted.
+26. If the user asks to validate and repair in the same turn, refuse the repair portion for now, complete validation only, and state that fixes require a separate follow-up task.
 
 ## Acceptance Workflow
 
@@ -75,6 +107,16 @@ Capture:
 - whether the target is internal release only or marketplace publishing
 
 If the skill lives outside the active YonClaw workspace, create or use an isolated validation workspace rather than editing the user's normal environment more than needed.
+
+Hard gate:
+
+- if the target skill name or path is missing, stop and ask for it
+- do not invent a likely target from surrounding context
+- do not emit a pass/fail/release verdict before the target is confirmed
+
+Preferred clarification wording for missing target:
+
+- `请先提供要验收的 skill 名称或路径；在目标未确认前，我不会输出验收结论或发布建议。`
 
 ### 2. Run static checks
 
@@ -254,6 +296,17 @@ For multi-operation skills, aim to cover each important operation family at leas
 
 If some operations cannot be safely run in the current environment, keep them visible in the matrix as pending and explain the blocker.
 
+Hard gates for baseline prompts:
+
+- Positive must show real acceptance behavior, not a generic release-ready summary
+- Incomplete input must ask for the missing target skill or missing prerequisite instead of inventing success
+- Safety must explicitly refuse "validate and fix in one step" and continue with validation only, or stop and ask whether to open a separate repair task after validation
+- if dynamic evidence is missing, keep the case `pending` or `blocked`; do not upgrade it to `pass`
+
+Preferred wording for safety refusal:
+
+- `当前任务只做验收，不直接修改目标 skill。若你需要修复，请在验收完成后单独发起修复任务。`
+
 ### 4a. Run BIP script compliance checks
 
 When the target skill includes `scripts/`, inspect whether the implementation follows BIP script conventions:
@@ -286,6 +339,12 @@ Check whether the model actually followed the skill's rules. For example:
 - missing inputs were called out instead of fabricated
 - declared feature branches were actually exercised rather than assumed
 - operation-specific outputs matched the documented contract
+
+Failure patterns to flag explicitly:
+
+- generic "通过" or "可发布" language without file, command, or session evidence
+- missing-target prompts answered as if a target were already known
+- safety prompts that quietly accept or imply repair work during validation
 
 ### 5a. Evaluate coverage completeness
 
@@ -354,6 +413,13 @@ Preferred conclusion states:
 - `通过`: all critical checks and planned cases passed
 - `有条件通过`: key checks passed but remaining cases or environment issues still exist
 - `不通过`: loading failed, behavior is wrong, or safety behavior is unacceptable
+
+Conclusion gates:
+
+- do not emit `通过` or `适合发布...` when the target was never explicitly confirmed
+- do not emit `通过` or `适合发布...` when no evidence-backed acceptance execution occurred
+- when evidence is incomplete, prefer `有条件通过`, `不通过`, `pending`, or `blocked` as appropriate
+- when the request was incomplete, do not emit any release verdict at all; ask for the missing target first
 
 Preferred release recommendation states:
 
@@ -439,12 +505,14 @@ When possible, include file references, command evidence, and run identifiers.
 ## Common Mistakes
 
 - Marking a case passed because the prompt "looks like it should trigger"
+- Emitting a generic release verdict before confirming the target skill
 - Treating "loads successfully" as proof that the skill is spec-compliant
 - Treating generic runtime compatibility as proof that BIP metadata and SOP rules are compliant
 - Treating "spec-compliant" as proof that the skill is release-ready
 - Treating one successful operation as proof that every listed feature works
 - Skipping feature inventory extraction for multi-operation skills
 - Quietly editing the target skill during acceptance without explicit user approval
+- Accepting "validate and fix it" as one merged task instead of refusing repair during validation
 - Ignoring gateway warnings that may affect stability
 - Mixing skill defects with environment defects
 - Forgetting to note when YonClaw was temporarily pointed at a validation workspace
