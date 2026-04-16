@@ -1,208 +1,207 @@
 ---
 name: yonclaw-skill-acceptance
-description: Use when a new or updated YonBIP skill running in YonClaw needs release validation before YonClaw rollout or marketplace-style publishing.
+description: Use when a new or updated YonBIP skill running in YonClaw needs release validation before YonClaw internal rollout.
 metadata: {"yonbip":{"version":"1.0.0"}}
 ---
 
 # YonClaw Skill Acceptance
 
-Use this skill as a release gate for a YonBIP skill running in YonClaw. It combines BIP specification checks, general-convention checks, feature-inventory analysis, dynamic behavior checks, and strict evidence recording so the final decision is based on real results instead of assumption.
+将此 skill 用作运行在 YonClaw 中的 YonBIP skill 发布门禁。它会组合 BIP 规范检查、通用规范检查、功能清单分析、动态行为验证与证据记录，确保最终结论基于真实结果，而不是基于推测。
 
-After validation, the default deliverable is a Markdown enterprise acceptance report, not just a chat summary.
+完成验收后，默认交付物是一份企业级 Markdown 验收报告，而不是聊天摘要。
 
-## Response Contract
+## 响应契约
 
-Apply these gates in order before giving any acceptance conclusion:
+在输出任何验收结论之前，必须按顺序通过以下门禁：
 
-1. confirm the target skill by explicit name or path
-2. read the target skill's key files
-3. collect evidence from checks or runtime results
-4. only then emit a verdict or release recommendation
+1. 明确确认目标 skill 的名称或路径
+2. 读取目标 skill 的关键文件
+3. 收集检查结果或运行结果中的真实证据
+4. 只有完成以上步骤后，才能输出结论或发布建议
 
-Hard rules:
+硬性规则：
 
-- if the target is missing, ask for it and stop there
-- if the user asks to validate and repair in one turn, refuse the repair portion for now
-- if evidence is missing, do not emit `通过` or `可发布`
+- 如果目标缺失，先追问并停在这里
+- 如果用户要求在同一轮里“验收并修复”，当前只接受验收部分，拒绝直接修复
+- 如果证据不足，不得输出 `通过` 或 `可发布`
 
-Required reply templates:
+缺参或越界场景的固定回复模板：
 
 - missing target:
   - `请先提供要验收的 skill 名称或路径；在目标未确认前，我不会输出验收结论或发布建议。`
 - validate-and-fix request:
   - `当前任务只做验收，不直接修改目标 skill。若你需要修复，请在验收完成后单独发起修复任务。`
 
-Disallowed shortcut behaviors:
+禁止的捷径行为：
 
-- generic `验收通过` without naming the checked target
-- generic `可直接发布` without evidence
-- treating static plausibility as dynamic proof
-- silently accepting repair work during validation
+- 不点名目标 skill，就直接给出泛化的 `验收通过`
+- 没有证据，就直接给出 `可直接发布`
+- 把静态上“看起来合理”当成动态证据
+- 在验收过程中默默接受修复工作
 
-## When To Use
+## 适用场景
 
-- A new YonBIP skill has been created and needs release validation.
-- An existing skill was edited and must be regression-checked.
-- The user wants to know whether the skill follows authoring conventions or spec expectations.
-- The user wants to know whether the skill follows general release conventions and is suitable for ClawHub-style publishing.
-- The user wants evidence from the runtime platform, real prompts, and a BIP-style acceptance report.
-- The user wants the results backfilled into an acceptance document.
+- 新建了一个 YonBIP skill，需要做发布前验收。
+- 一个已有 skill 被修改过，需要做回归检查。
+- 用户想知道该 skill 是否符合编写规范或 spec 要求。
+- 用户想知道该 skill 是否符合通用发布规范，并适合 YonClaw 内部发布。
+- 用户希望看到运行平台证据、真实 prompt 结果和 BIP 风格验收报告。
+- 用户希望将结果回填到验收文档中。
 
-Do not use this skill for generic prompt testing unrelated to YonBIP or YonClaw skills.
+不要将此 skill 用于与 YonBIP 或 YonClaw skill 无关的普通 prompt 测试。
 
-This skill is for validation and reporting only. It must not proactively modify the target skill, patch business scripts, or "fix as it goes" unless the user explicitly asks for a separate repair task after validation.
+此 skill 仅用于验收与记录。除非用户在验收结束后明确发起单独修复任务，否则不得主动修改目标 skill、业务脚本或“边验收边修复”。
 
-## Core Rules
+## 核心规则
 
-1. Separate spec checks, static checks, general-convention checks, feature-inventory checks, and dynamic checks.
-2. Treat runtime-platform discoverability as necessary but not sufficient.
-3. Always run at least one positive case, one non-trigger case, and one safety case when applicable.
-4. Never claim a case passed unless there is actual command output or a real session result.
-5. Keep unexecuted cases marked as pending or blocked; do not upgrade them to covered in the final summary.
-6. Record environment noise separately from skill behavior.
-7. Record spec violations even if the skill still loads.
-8. Unless the user explicitly asks for summary-only output, generate a Markdown report file at the end.
-9. Treat release readiness as a distinct outcome from simple "it loads".
-10. Extract the target skill's declared feature checklist before dynamic testing.
-11. Use the feature checklist to drive case coverage and report coverage gaps explicitly.
-12. Do not change the target skill, shared dependency skill, or business scripts during acceptance unless the user explicitly switches from validation to repair.
-13. `static-only` evidence must remain distinct from real dynamic coverage in both the matrix and the conclusion.
-14. Final output must separate business capability readiness from platform or integration readiness.
-15. Sensitive capabilities must be audited explicitly rather than buried inside generic static findings.
-16. Choose the validation mode explicitly: single-skill deep acceptance or batch triage, and do not mix their conclusions.
-17. Automatically executed behavior such as hooks, dynamic injection, or load-time commands must be surfaced as first-class risk signals.
-18. Hidden or obfuscated content must be checked explicitly rather than assumed absent.
-19. BIP metadata is mandatory: `name` must match the directory name, and `metadata` must include a `yonbip.version` field in `major.minor.patch` format.
-20. BIP naming rules must be checked explicitly: lowercase letters or digits with hyphens only, no leading or trailing hyphen, no double hyphen, no underscore, no leading digit, and reasonable alignment with the product-line or service naming convention.
-21. The body must be judged as an SOP, not a casual explanation. It should clearly cover purpose, execution steps, input and output examples, and error handling.
-22. If scripts exist, treat Python-only implementation, standardized JSON output, and exception normalization as required BIP checks rather than optional general conventions.
-23. For BIP API skills, verify whether scripts use the standard shared utilities such as `yonbip_skill_utils.requests` and `yonbip_skill_utils.logging` unless a justified alternative is documented.
+1. 将 spec 检查、静态检查、通用规范检查、功能清单检查和动态检查严格分开记录。
+2. 运行平台可发现是必要条件，但绝不是充分条件。
+3. 只要场景适用，至少要跑一个 `Positive`、一个非触发 case 和一个 `Safety` case。
+4. 没有真实命令输出或真实 session 结果，就不能把 case 判成 `pass`。
+5. 未执行项保持为 `pending` 或 `blocked`，不要在最终总结时升级成已覆盖。
+6. 环境噪音要与 skill 行为分开记录。
+7. 即使 skill 能加载，spec 问题也必须单独记录。
+8. `release readiness` 要与“只是能加载”分开判断。
+9. 动态测试前先提取目标 skill 的功能清单。
+10. 用功能清单驱动 case 覆盖，并显式写出覆盖缺口。
+11. 在验收阶段不得修改目标 skill、共享依赖 skill 或业务脚本，除非用户明确把任务从验收切换为修复。
+12. `static-only` 证据必须与真实动态覆盖在覆盖矩阵和结论中严格区分。
+13. 最终输出必须区分业务能力结论与平台集成结论。
+14. 敏感能力必须显式审计，不能埋在普通静态检查结论里。
+15. 必须显式选择 `single-skill deep acceptance` 或 `batch triage`，不得混用它们的结论。
+16. hooks、动态注入、加载即执行命令、隐藏内容和混淆内容都必须作为一等风险信号显式暴露。
+17. BIP metadata、命名、SOP 结构以及脚本工程规范都是强制检查项；对 BIP API 型 skill，还要检查是否使用标准共享工具，如 `yonbip_skill_utils.requests` 和 `yonbip_skill_utils.logging`。
 
-## Acceptance Workflow
+## 验收工作流
 
-### 0. Choose the validation mode
+### 0. 选择验收模式
 
-Decide which mode applies before reading too much:
+在读取过多内容前，先决定采用哪种验收模式：
 
-- `single-skill deep acceptance`: use for release-gating one target skill with full spec, runtime, and report output
-- `batch triage`: use for scanning multiple skills quickly, ranking risk, and deciding which ones deserve deep acceptance next
+- `single-skill deep acceptance`：对单个目标 skill 做完整的 spec、runtime 和报告级发布验收
+- `batch triage`：快速扫描多个 skill，排序风险，并决定哪些需要进入深度验收
 
-Rules:
+规则：
 
-- batch triage may reuse the sensitive-capability and hidden-content checks, but it must not pretend to provide the same depth as full acceptance
-- deep acceptance remains the required mode for any final release verdict such as `通过`, `有条件通过`, or `不通过`
-- batch triage should end with a shortlist: `needs deep acceptance`, `safe for now`, or `high-risk`
+- `batch triage` 可以复用敏感能力和隐藏内容检查，但不能假装自己具备与完整验收相同的深度
+- 任何最终发布结论，如 `通过`、`有条件通过`、`不通过`，都必须基于 `deep acceptance`
+- `batch triage` 的输出应收束为 shortlist，例如 `needs deep acceptance`、`safe for now` 或 `high-risk`
 
-### 1. Confirm the test target
+### 1. 确认验收目标
 
-Capture:
+需要先确认并记录：
 
-- skill name
-- skill path
-- intended workspace
-- target acceptance document path if one already exists
-- whether the target is internal release only or marketplace publishing
+- skill 名称
+- skill 路径
+- 计划使用的 workspace
+- 已有验收文档路径（如存在）
+- 是否面向 YonClaw 内部发布
 
-If the skill lives outside the active YonClaw workspace, create or use an isolated validation workspace rather than editing the user's normal environment more than needed.
+如果 skill 位于当前活跃 YonClaw workspace 之外，应创建或使用隔离的验证 workspace，而不是过度改动用户的日常环境。
 
-Hard gate:
+硬性门禁：
 
-- if the target skill name or path is missing, stop and ask for it
-- do not invent a likely target from surrounding context
-- do not emit a pass/fail/release verdict before the target is confirmed
+- 不得根据上下文自行猜测一个“可能的目标”
+- 在目标确认前，不得输出 pass/fail/release 结论
 
-### 2. Run static checks
+### 2. 执行静态检查
 
-Verify:
+先做静态检查，确认：
 
-- `SKILL.md` exists
-- frontmatter contains `name` and `description`
-- referenced scripts or references actually exist
-- the skill instructions match the intended behavior
+- `SKILL.md` 存在
+- frontmatter 包含 `name` 和 `description`
+- 引用的脚本或参考文件实际存在
+- skill 指令与预期行为一致
 
-### 2a. Run spec checks
+### 2a. 执行 spec 检查
 
-Check whether the skill follows BIP-specific authoring expectations:
+目标：确认该 skill 是否符合 BIP 专项编写要求。
 
-- `name` matches the directory name exactly
-- `metadata` exists and is valid YAML frontmatter content
-- `metadata.yonbip.version` exists and uses `major.minor.patch`
-- `description` is trigger-oriented and preferably starts with `Use when`
-- `description` focuses on when to use the skill, not a long summary of workflow
-- `description` explicitly states what the skill does, how a user would ask for it, and the likely trigger keywords
-- if runtime-platform metadata exists, it is not stale or contradictory
-- `name` is stable, readable, and hyphenated if appropriate
-- if the skill is part of a dedicated skill git project, the git project name follows the BIP `microservice-code-skills` convention or a documented equivalent
-- if the skill is part of a dedicated skill git project, the surrounding project structure is consistent with the BIP expectation that one project may contain one or more skill directories following the standard layout
-- the directory name follows BIP naming constraints: lowercase, hyphenated, no underscore, no double hyphen, no leading digit
+必查项：
 
-Mark each spec issue separately from runtime issues. A spec issue may justify `有条件通过` even when dynamic cases succeed.
+- `name` 与目录名完全一致
+- `metadata` 存在，且是有效的 YAML frontmatter 内容
+- `metadata.yonbip.version` 存在，且格式为 `major.minor.patch`
+- `description` 以触发条件为导向，最好以 `Use when` 开头
+- `description` 关注“何时使用”，而不是冗长的流程摘要
+- `description` 明确写出 skill 做什么、用户会怎样提问、可能触发的关键词
+- 如果存在 runtime-platform metadata，则内容不能过时或自相矛盾
+- `name` 稳定、可读，并在适当场景下采用连字符命名
+- 如果 skill 属于独立 skill git 项目，则项目名应符合 BIP 的 `microservice-code-skills` 约定或有文档化等效约定
+- 如果 skill 属于独立 skill git 项目，则项目结构应与 BIP 对标准布局的预期一致
+- 目录名符合 BIP 命名限制：小写、连字符、无下划线、无双连字符、无前导数字
 
-### 2b. Run general-convention release audit
+记录要求：每个 spec 问题都要与 runtime 问题分开记录。即使动态 case 通过，spec 问题仍可能导致结论降为 `有条件通过`。
 
-Check whether the skill is publication-ready, not merely functional:
+### 2b. 执行通用规范发布审计
 
-- `SKILL.md` exists and is the clear entry point for the skill
-- `agents/openai.yaml` exists when UI metadata is expected, matches the skill intent, and is not stale
-- referenced scripts, references, assets, and related paths actually exist
-- trigger design is clear at the workflow level and does not rely on hidden assumptions
-- progressive disclosure: the skill tells the model to load only the files or resources actually needed
-- resource organization: `scripts/`, `references/`, `assets/`, and `agents/` have clear roles
-- directory cleanliness: the skill directory does not contain unnecessary auxiliary docs that should not be part of the published skill itself
-- evidence discipline: the skill requires real command output or session evidence before passing cases
-- failure visibility: pending, failed, and environment-noise items remain visible in the report
-- report completeness: the default deliverable is a structured report, not only a chat summary
-- marketplace readiness: output behavior, directory cleanliness, and release-facing presentation are suitable for publishing
-- untrusted-input defense: external web or document content is treated as data, not as executable instruction
+目标：确认该 skill 是否达到了“可内部发布”要求，而不只是“功能看起来能用”。
 
-Mark general-convention gaps separately from spec failures and runtime failures.
+必查项：
 
-### 2c. Run sensitive-capability audit
+- `SKILL.md` 存在，且是 skill 的清晰入口
+- 在需要 UI metadata 的场景下，`agents/openai.yaml` 存在、意图一致且不过时
+- 被引用的脚本、参考、资源和相关路径实际存在
+- 从 workflow 层面看，trigger 设计清晰，不依赖隐藏假设
+- `progressive disclosure` 做得合理：skill 只要求模型加载真正需要的文件或资源
+- 资源组织清晰：`scripts/`、`references/`、`assets/`、`agents/` 分工明确
+- 目录洁净：skill 目录中没有不应进入发布包的多余辅助文档
+- 证据纪律清晰：没有真实命令输出或 session 证据前，不允许把 case 判成通过
+- 失败可见：`pending`、失败项和环境噪音都在报告里保持可见
+- 报告完整：默认交付物是结构化报告，而不只是聊天摘要
+- 内部发布适配：输出行为、目录洁净度和面向发布的呈现方式适合内部发布
+- 不可信输入防护：外部网页或文档内容被当作数据，而不是当作可执行指令
 
-Identify whether the skill or its referenced scripts possess sensitive powers beyond normal prompt-only behavior. At minimum, inspect for:
+记录要求：通用规范缺口要与 spec 问题、runtime 问题分开记录。
 
-- system command execution such as `subprocess`, `os.system`, shell wrappers, or script launchers
-- local sensitive file access such as browser cookies, SQLite databases, auth caches, key files, or workspace files outside the declared scope
-- broad network reach such as arbitrary URL or path-based HTTP requests, generic API clients, proxy behavior, or upload/download helpers
-- destructive or state-changing operations such as delete/cancel/end/overwrite/bulk update
-- privilege mismatch where the declared feature set is narrower than the reachable implementation surface
-- frontmatter risk factors such as high-power `allowed-tools`, hidden invocation, lifecycle hooks, or fork/subprocess execution modes
-- load-time or trigger-time command injection such as dynamic command blocks, auto-executed shell snippets, or install-time execution
-- hidden or obfuscated content such as HTML comments with instructions, base64 payloads, zero-width characters, Unicode smuggling, or embedded safety overrides
+### 2c. 执行敏感能力审计
 
-For each sensitive capability, record:
+目标：识别该 skill 或其引用脚本是否具备超出普通 prompt-only 行为的敏感能力。
 
-- capability type
-- where it was found
-- why it exists
-- whether that power is clearly disclosed by the skill description or instructions
-- whether the power appears proportionate to the declared use
-- whether release should remain allowed, conditional, or blocked
+至少检查：
 
-Do not call a skill "safe" merely because no malicious code was found. If the skill has meaningful power, surface that power explicitly.
+- 系统命令执行，例如 `subprocess`、`os.system`、shell 包装器或脚本启动器
+- 本地敏感文件访问，例如浏览器 cookies、SQLite 数据库、认证缓存、密钥文件或声明范围外的 workspace 文件
+- 宽范围网络访问，例如任意 URL/path 的 HTTP 请求、通用 API 客户端、代理行为或上传/下载辅助器
+- 破坏性或状态改变操作，例如 delete/cancel/end/overwrite/bulk update
+- 权限不匹配：对外声明能力比实际可达实现能力更弱
+- frontmatter 风险因子，例如高权限 `allowed-tools`、隐藏调用、lifecycle hooks 或 fork/subprocess 执行模式
+- 加载期或触发期命令注入，例如动态命令块、自动执行 shell 片段或安装期执行
+- 隐藏或混淆内容，例如带指令的 HTML 注释、base64 载荷、零宽字符、Unicode 伪装或嵌入式安全覆盖
 
-### 2d. Run auto-execution and hidden-content checks
+对每一项敏感能力，都要记录：
 
-Inspect whether the skill can execute or influence behavior before the user consciously invokes it.
+- 能力类型
+- 发现位置
+- 该能力存在的原因
+- 该能力是否被 skill 描述或说明清楚披露
+- 该能力是否与声明用途相称
+- 该能力是否应让发布保持允许、改为有条件，或直接阻断
 
-At minimum, check:
+记录要求：不要因为“没发现恶意代码”就直接把 skill 判成 `safe`。只要该 skill 具备有意义的能力，就必须显式暴露这种能力。
 
-- lifecycle hooks or platform-specific auto-run fields
-- dynamic injection patterns that execute shell or tool commands during skill load
-- hidden trigger patterns intended to evade ordinary review
-- comments, encoded payloads, or invisible characters that alter instructions or override safety policy
-- browser-cookie, local-database, or auth-cache access that is not clearly disclosed
+### 2d. 执行自动执行与隐藏内容检查
 
-Record separately:
+目标：检查该 skill 是否会在用户明确调用之前就执行或影响行为。
 
-- whether the behavior is auto-executed, user-triggered, or unclear
-- whether the behavior is documented
-- whether the behavior is necessary for the stated use
-- whether the behavior should block release
+至少检查：
 
-### 3. Run platform integration checks
+- lifecycle hooks 或平台特定的 auto-run 字段
+- 在 skill 加载期执行 shell 或工具命令的动态注入模式
+- 试图规避常规审查的隐藏触发模式
+- 会改变指令或覆盖安全策略的注释、编码载荷或不可见字符
+- 未被清楚披露的 browser cookie、本地数据库或认证缓存访问
 
-Use the runtime platform commands appropriate to the validation environment.
+记录：
+
+- 该行为是 auto-executed、user-triggered，还是状态不明
+- 该行为是否有文档说明
+- 该行为是否对声明用途必需
+- 该行为是否应该阻断发布
+
+### 3. 执行平台集成检查
+
+使用与当前验证环境匹配的运行平台命令。
 
 ```bash
 <runtime-platform-refresh-command>
@@ -210,313 +209,191 @@ Use the runtime platform commands appropriate to the validation environment.
 <runtime-platform-info-command> <skill-name>
 ```
 
-Pass criteria:
+通过标准：
 
-- the runtime platform reloads or refreshes successfully
-- the skill becomes discoverable in the runtime
-- the runtime info or metadata command resolves to the expected directory and file set
+- 运行平台能够成功刷新或重载
+- skill 能在运行平台中被发现
+- 运行平台的 info 或 metadata 命令解析到预期目录和文件集
 
-If YonClaw is not using the intended workspace, document that fact and, if appropriate, temporarily switch to an isolated validation workspace. Record the exact workspace used.
+如果 YonClaw 当前没有使用目标 workspace，要在报告中记录这一事实；如有必要，可临时切换到隔离的验证 workspace，并记录实际使用的路径。
 
-### 3a. Extract the feature inventory
+### 3a. 提取功能清单
 
-Before dynamic testing, read the target skill and build a feature inventory from:
+在开始动态测试前，先读取目标 skill，并从显式功能清单、能力 bullet、操作动词、guardrail/输出规则以及引用脚本中提取功能清单。
 
-- explicit feature lists in `SKILL.md`
-- capability bullets such as “支持…”
-- operation verbs such as query/create/update/delete/export/review/reply
-- branch-specific guardrails, placeholders, confirmation requirements, and output-format rules
-- referenced scripts that imply concrete subcommands or operation families
-
-For each feature, record:
+对每个 feature，至少记录：
 
 - feature id
 - feature name
-- source evidence in the skill file or referenced resource
-- feature category:
-  - core operation
-  - guardrail
-  - branch behavior
-  - output rule
-  - integration requirement
-  - BIP compliance requirement
-- whether dynamic validation is required, optional, or blocked by environment
+- 在 skill 文件或引用资源中的来源证据
+- feature category（如 `core operation`、`guardrail`、`branch behavior`、`output rule`、`integration requirement`、`BIP compliance requirement`）
+- 该 feature 的动态验证是 required、optional，还是被环境阻塞
 
-Do not treat one happy path as proof that all listed features work.
+不要把一个 happy path 的成功当成所有声明功能都可用的证明。
 
-### 3b. Build the coverage matrix
+### 3b. 建立覆盖矩阵
 
-Create a feature-to-case matrix before running dynamic checks.
+在动态验证前，先建立 feature-to-case 覆盖矩阵。
 
-At minimum, classify planned coverage as:
+至少使用这些状态：`covered by dynamic case`、`covered by static/spec evidence only`、`pending due to environment or prerequisite gap`、`blocked by environment or platform failure`、`out of scope for this round`。
 
-- covered by dynamic case
-- covered by static/spec evidence only
-- pending due to environment or prerequisite gap
-- blocked by environment or platform failure
-- out of scope for this round
+只有在证据仍然明确且无歧义时，才允许用一个 case 覆盖多个相近 feature。
 
-Prefer one case to cover multiple nearby features only when the evidence remains explicit and unambiguous.
+### 4. 执行动态行为检查
 
-### 4. Run dynamic behavior checks
+至少验证 `Positive`、`Negative`、`Incomplete input`、`Safety` 四类基线 prompt；如果该 skill 存在按操作分支的行为，还需要补充分支定向 case。
 
-At minimum, test these baseline prompt classes:
+动态验证必须至少包含：
 
-- Positive: should trigger the skill
-- Negative: should not trigger the skill
-- Incomplete input: should guide, not invent
-- Safety: should refuse or guard risky actions
+- 基线用例：
+  - `Positive`
+  - `Negative`
+  - `Incomplete input`
+  - `Safety`
+- 从 feature inventory 派生出的定向功能用例
 
-When the skill has operation-specific behavior, add focused cases for those branches.
+对于多操作 skill，应尽量让每个重要操作族至少覆盖一次，例如 query/list/search、create/send/submit、update/edit/reply、delete/cancel/end、export/report/render、review/approval/audit。
 
-Dynamic checks must include:
+如果某些操作在当前环境下无法安全执行，应在覆盖矩阵中保持其为 `pending`，并明确说明阻塞原因。
 
-- baseline cases:
-  - Positive
-  - Negative
-  - Incomplete input
-  - Safety
-- feature-specific cases derived from the feature inventory
+基线 prompt 的硬门禁：
 
-For multi-operation skills, aim to cover each important operation family at least once. For example:
+- `Positive` 必须体现真实验收行为，而不是输出一段泛化的“可发布”摘要
+- `Incomplete input` 必须追问缺失的目标 skill 或前置条件，而不是凭空补成成功
+- `Safety` 必须明确拒绝“边验收边修复”，只能继续做验收，或停下来询问是否在验收后单独开启修复任务
+- 如果缺少动态证据，就保持 case 为 `pending` 或 `blocked`，不得升级为 `pass`
 
-- query/list/search
-- create/send/submit
-- update/edit/reply
-- delete/cancel/end
-- export/report/render
-- review/approval/audit
+### 4a. 执行 BIP 脚本合规检查
 
-If some operations cannot be safely run in the current environment, keep them visible in the matrix as pending and explain the blocker.
+如果目标 skill 包含 `scripts/`，需要检查其实现是否符合 BIP 脚本规范：
 
-Hard gates for baseline prompts:
+- 脚本是否采用 Python，而不是在没有充分理由的情况下混用任意运行时
+- 脚本名是否符合 lowercase underscore 风格
+- BIP API 访问是否使用 `yonbip_skill_utils.requests` 或有文档化等效封装
+- 日志是否使用 `yonbip_skill_utils.logging` 或有文档化等效方案
+- 最终脚本输出是否为 JSON，且至少包含 `success` 和 `message`
+- 异常是否被标准化输出，而不是直接抛原始异常
 
-- Positive must show real acceptance behavior, not a generic release-ready summary
-- Incomplete input must ask for the missing target skill or missing prerequisite instead of inventing success
-- Safety must explicitly refuse "validate and fix in one step" and continue with validation only, or stop and ask whether to open a separate repair task after validation
-- if dynamic evidence is missing, keep the case `pending` or `blocked`; do not upgrade it to `pass`
+这些结果要与动态业务行为分开记录，因为一个 skill 可能在功能上可用，但仍然不满足 BIP 工程规范。
 
-### 4a. Run BIP script compliance checks
-
-When the target skill includes `scripts/`, inspect whether the implementation follows BIP script conventions:
-
-- scripts are implemented in Python rather than mixed arbitrary runtimes unless clearly justified
-- script names follow lowercase underscore style
-- BIP API access uses `yonbip_skill_utils.requests` or a documented equivalent wrapper
-- logging uses `yonbip_skill_utils.logging` or a documented equivalent
-- final script output is printed as JSON and includes at least `success` and `message`
-- exceptions are normalized into standard output rather than thrown raw
-
-Record these results separately from dynamic business behavior so a skill can be functionally useful yet still fail BIP engineering compliance.
-
-For each case, record:
+每个 case 都要记录：
 
 - prompt
-- expected behavior
-- actual behavior
-- pass or pending
-- run identifier or equivalent evidence when available
-- covered feature ids
+- expected behavior（预期行为）
+- actual behavior（实际行为）
+- pass or pending（通过或待定）
+- run identifier or equivalent evidence when available（运行标识或等效证据）
+- covered feature ids（覆盖的 feature id）
 
-### 5. Evaluate behavior, not just trigger
+### 5. 评估真实行为，而不只是看是否触发
 
-Check whether the model actually followed the skill's rules. For example:
+不要只看有没有触发 skill，还要检查模型是否真的遵守了 skill 规则，例如 placeholder、summary 压缩、危险动作默认不执行、缺失输入不编造、声明分支真实触达，以及操作级输出是否符合文档 contract。
 
-- placeholders were used instead of live secrets
-- summaries were trimmed as specified
-- dangerous actions were not executed by default
-- missing inputs were called out instead of fabricated
-- declared feature branches were actually exercised rather than assumed
-- operation-specific outputs matched the documented contract
+需要显式标记的失败模式：
 
-Failure patterns to flag explicitly:
+- 没有 file、command 或 session 证据，却输出泛化的“通过”或“可发布”
+- 缺参 prompt 被回答成“目标已经知道”
+- `Safety` prompt 下悄悄接受或暗示在验收中直接修复
 
-- generic "通过" or "可发布" language without file, command, or session evidence
-- missing-target prompts answered as if a target were already known
-- safety prompts that quietly accept or imply repair work during validation
+### 5a. 评估覆盖完整性
 
-### 5a. Evaluate coverage completeness
+动态测试后，反向核对功能清单：哪些声明功能已被动态覆盖，哪些只有静态证据，哪些仍是 `pending`，哪些被环境阻塞，哪些关键功能仍未验证。
 
-After dynamic testing, evaluate the feature inventory itself:
+如果关键声明功能仍未被验证，就不要标记为 `通过`，除非用户明确缩小了本轮范围，并且该范围收缩已被记录。
 
-- Which declared features were dynamically covered?
-- Which features only have static evidence?
-- Which features remain pending?
-- Which features were blocked by environment or platform conditions?
-- Which critical features are still unverified?
+### 5b. 可选的第二意见复核
 
-Do not mark `通过` when critical declared features remain untested unless the user explicitly narrowed scope and that narrower scope is recorded.
+当风险等级仍然模糊，或该 skill 具备较强敏感能力时，可以选择追加第二模型或第二工具复核。
 
-### 5b. Optional second-opinion review
+以下场景适合启用这一分支：
 
-When risk classification remains ambiguous, or when the skill has meaningful sensitive power, optionally request a second-model or second-tool review.
+- 主审结论接近 pass/fail 边界
+- 静态证据显示存在高风险能力，但意图仍不清楚
+- 用户明确要求 cross-validation
 
-Use this branch when:
+规则：
 
-- the primary audit is near a pass/fail boundary
-- static evidence suggests risky power but intent is unclear
-- the user explicitly wants cross-validation
+- second opinion 只能作为辅助证据，不能直接当成最终真相
+- 保留原始发现，并注明 second opinion 在哪些点上同意或不同意
+- 不能让 second opinion 覆盖掉代码或 runtime 行为中的直接证据
 
-Rules:
+### 6. 回填验收记录
 
-- treat the second opinion as advisory evidence, not automatic truth
-- preserve the original findings and note where the second opinion agreed or disagreed
-- never let a second opinion erase direct evidence from code or runtime behavior
+将执行摘要、风险摘要、spec/通用规范/敏感能力/自动执行检查结果、功能清单与覆盖矩阵、已执行命令与真实结果、`pending` cases、环境问题、当前结论和发布建议回填到验收文档中。
 
-### 6. Backfill the acceptance record
+如果还没有验收文档，就使用 `assets/enterprise-acceptance-report-template.md` 里的企业模板创建新文档。
 
-Update the acceptance document with:
+推荐输出行为：
 
-- executive summary
-- risk summary card
-- spec findings
-- general-convention audit findings
-- sensitive-capability audit findings
-- auto-execution and hidden-content findings
-- feature inventory
-- coverage matrix
-- commands executed
-- real results
-- pending cases
-- known environment issues
-- current conclusion
-- release recommendation
+- 如果用户已经给了验收文档路径，就更新那份文件
+- 否则，在当前 workspace 新建一份 Markdown 报告
+- 文件名可采用 `<skill-name>-acceptance-report-enterprise.md`
+- 已执行项填充真实证据，未执行项保持为 `pending` 或 `blocked`，不要隐藏失败
+- 不要“边验收边修复”；除非用户明确要求修复，否则只记录 findings 并停在报告输出
+- 没有动态证据时，不要把 feature 标成 `covered`
+- 最终 verdict 要拆成业务能力结论和平台集成结论
+- 如果敏感能力超过声明用途，或披露不充分，优先给出 `有条件通过` 或 `不通过`，而不是 `通过`
+- 最终输出通常同时包含一段简短聊天摘要和一份基于企业模板生成的 Markdown 报告文件
+- 报告至少应包含：文档信息、skill 名称与路径、workspace、spec/BIP/静态/通用规范结果、动态 case、环境问题、最终结论、发布建议和后续动作
+- 条件允许时，应补充文件引用、命令证据和运行标识
 
-If no acceptance document exists yet, create one from the bundled enterprise template at `assets/enterprise-acceptance-report-template.md`.
+推荐结论状态：
 
-Preferred output behavior:
+- `通过`：所有关键检查项和计划 case 都已通过
+- `有条件通过`：关键检查项通过，但仍存在剩余 case 或环境问题
+- `不通过`：加载失败、行为错误，或安全行为不可接受
 
-- If the user already has an acceptance doc path, update that file.
-- Otherwise, create a new Markdown report in the current workspace.
-- Use a file name like `<skill-name>-acceptance-report-enterprise.md`.
-- Fill executed items with evidence, keep unexecuted items as pending or blocked, and do not hide failures.
-- Do not "repair while validating"; record findings and stop at report output unless the user explicitly asks for fixes.
-- Do not mark a feature as `covered` unless dynamic evidence exists in the report.
-- Split the final verdict into:
-  - business capability conclusion
-  - platform / integration conclusion
-- If sensitive powers exceed the declared use or lack clear disclosure, prefer `有条件通过` or `不通过` over `通过`.
+结论门禁：
 
-Preferred conclusion states:
+- 目标从未被明确确认时，不得输出 `通过` 或 `适合发布...`
+- 没有发生基于证据的真实验收执行时，不得输出 `通过` 或 `适合发布...`
+- 如果证据不完整，应根据情况优先给出 `有条件通过`、`不通过`、`pending` 或 `blocked`
+- 如果请求本身不完整，就不要输出任何发布结论；先追问缺失目标
 
-- `通过`: all critical checks and planned cases passed
-- `有条件通过`: key checks passed but remaining cases or environment issues still exist
-- `不通过`: loading failed, behavior is wrong, or safety behavior is unacceptable
+推荐发布建议状态：
 
-Conclusion gates:
-
-- do not emit `通过` or `适合发布...` when the target was never explicitly confirmed
-- do not emit `通过` or `适合发布...` when no evidence-backed acceptance execution occurred
-- when evidence is incomplete, prefer `有条件通过`, `不通过`, `pending`, or `blocked` as appropriate
-- when the request was incomplete, do not emit any release verdict at all; ask for the missing target first
-
-Preferred release recommendation states:
-
-- `适合 YonClaw 发布`
-- `适合发布到 ClawHub`
+- `适合 YonClaw 内部发布`
 - `修复后再发布`
 
-### Batch-triage output minimum
+### `batch triage` 最低输出要求
 
-When running batch triage instead of deep acceptance, the output must still include:
+如果执行的是 `batch triage` 而不是 `deep acceptance`，输出仍至少要包含：skill 名称、声明用途、来源 / 位置、当前最高风险等级、下一步是否需要 `deep acceptance`，以及基于证据的简明原因。
 
-- skill name
-- claimed purpose
-- source / location
-- highest observed risk level
-- whether deep acceptance is required next
-- concise reason grounded in evidence
+## 最小用例集
 
-## Minimum Case Set
+除非该 skill 需要更多 case，否则默认使用 `Positive`、`Negative`、`Incomplete-input`、`Safety` 四类基线用例。
 
-Use this default set unless the skill needs more:
+如需扩展，可加入 `Happy path`、`Secondary happy path`、`Boundary case`、`Error-input` 等补充用例；对功能更丰富的 skill，再为重要操作族、关键 guardrail、特殊输出格式规则和高风险动作路径各补至少一个用例。
 
-1. Positive case
-2. Negative case
-3. Incomplete-input case
-4. Safety case
+## 证据标准
 
-For broader acceptance, expand to:
+有效证据通常包括：对 skill 文件及相关行号的直接引用、runtime platform discovery/info 输出、真实 runtime agent 结果、作为环境说明记录下来的 gateway 或 runtime warning、从已执行 case 到声明 feature 的直接映射，以及在适用时能直接证明 `metadata.yonbip.version`、SOP 结构、脚本输出形状与异常处理行为的证据。
 
-1. Happy path
-2. Secondary happy path
-3. Boundary case
-4. Negative case
-5. Error-input case
-6. Safety case
+不要把主观假设、静态阅读或推断行为当成动态证据。
 
-For feature-rich skills, expand again into:
+## 常见误区
 
-1. Baseline case set
-2. One case per important operation family
-3. One case per critical guardrail
-4. One case per special output-format rule
-5. One case per destructive or high-risk action path
+常见误区：
 
-## Evidence Standard
+- 因为 prompt “看起来应该会触发”，就把 case 判成通过
+- 在目标 skill 还没确认前，就先输出泛化发布结论
+- 把“能加载”或一般性的 runtime 兼容，当成 spec-compliant 甚至 release-ready 的证明
+- 把一个成功操作当成所有声明功能都可用的证明
+- 面对多操作 skill 时，跳过 feature inventory 提取
+- 未经用户明确许可，就在验收中悄悄修改目标 skill
+- 忽略可能影响稳定性的 gateway warning
+- 把 skill 缺陷和环境缺陷混为一谈
+- 在整理文档时把 `pending` 项清洗成通过
+- 在 skill 含 Python 脚本时，忽略脚本输出形状、日志或异常标准化
 
-Good evidence includes:
+## 收尾检查
 
-- direct references to the skill file and relevant lines
-- runtime platform discovery output showing the skill
-- runtime info output showing the resolved path
-- actual runtime agent results
-- gateway or runtime warnings captured as environment notes
-- direct mapping from executed cases to declared features
-- direct evidence of `metadata.yonbip.version`, SOP structure, script output shape, and exception handling behavior when applicable
+收尾前，确认以下事项：
 
-Do not treat assumptions, static reading, or inferred behavior as dynamic proof.
-
-## Report Requirement
-
-The final output should normally include both:
-
-1. A concise chat summary
-2. A Markdown report file generated from the enterprise template
-
-The report must contain:
-
-- document info
-- skill name and path
-- workspace used for validation
-- spec findings
-- BIP compliance findings
-- static check results
-- general-convention audit results
-- dynamic case results
-- environment issues
-- final conclusion
-- release recommendation
-- next actions
-
-When possible, include file references, command evidence, and run identifiers.
-
-## Common Mistakes
-
-- Marking a case passed because the prompt "looks like it should trigger"
-- Emitting a generic release verdict before confirming the target skill
-- Treating "loads successfully" as proof that the skill is spec-compliant
-- Treating generic runtime compatibility as proof that BIP metadata and SOP rules are compliant
-- Treating "spec-compliant" as proof that the skill is release-ready
-- Treating one successful operation as proof that every listed feature works
-- Skipping feature inventory extraction for multi-operation skills
-- Quietly editing the target skill during acceptance without explicit user approval
-- Accepting "validate and fix it" as one merged task instead of refusing repair during validation
-- Ignoring gateway warnings that may affect stability
-- Mixing skill defects with environment defects
-- Forgetting to note when YonClaw was temporarily pointed at a validation workspace
-- Converting pending checks into passed checks during document cleanup
-- Ignoring script output shape, logging, or exception normalization when the skill contains Python scripts
-
-## Closeout
-
-Before closing:
-
-- confirm which cases truly ran
-- separate spec violations from behavior failures
-- separate general-convention gaps from runtime failures
-- summarize declared feature coverage, not only case counts
-- keep unresolved cases visible
-- summarize environment caveats separately
-- ensure the report file was written or clearly state why it was not
-- state whether the skill is ready for internal use, ClawHub publishing, further testing, or repair
+- 确认真正执行过哪些 case
+- 把 spec、通用规范和 runtime 问题分开
+- 总结声明功能的覆盖情况，而不只是统计 case 数量
+- 保持未解决项可见
+- 单独总结环境注意事项
+- 确认报告文件已写出；若未写出，必须明确说明原因
+- 说明该 skill 当前是适合内部发布、需要继续测试，还是需要修复

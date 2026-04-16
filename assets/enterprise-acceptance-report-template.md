@@ -8,7 +8,7 @@
 |---|---|
 | 业务能力结论 | `<pass-or-conditional-or-fail>` |
 | 平台集成结论 | `<pass-or-conditional-or-fail>` |
-| 发布建议 | `<internal-clawhub-or-fix-first>` |
+| 发布建议 | `<internal-release-or-fix-first>` |
 | 风险摘要 | `<top-risk-summary>` |
 | 动态覆盖率摘要 | `<dynamic-covered>/<feature-count>` |
 | 关键未决项 | `<top-open-items>` |
@@ -40,7 +40,7 @@
 | 需求来源 | `<request-source>` |
 | 适用版本 | `<version>` |
 | 测试类型 | `<first-acceptance-or-regression>` |
-| 发布目标 | `<internal-or-clawhub>` |
+| 发布目标 | `<internal-release>` |
 | 验收模式 | `<single-skill-deep-acceptance-or-batch-triage>` |
 | 测试环境 | `<environment-summary>` |
 | 工作区 | `<workspace-path>` |
@@ -78,7 +78,7 @@
 | 证据标准清晰 | `<pass-or-fail>` | `<note>` |
 | 失败项可见 | `<pass-or-fail>` | `<note>` |
 | 报告输出稳定 | `<pass-or-fail>` | `<note>` |
-| Marketplace 发布适配 | `<pass-or-fail>` | `<note>` |
+| 内部发布适配 | `<pass-or-fail>` | `<note>` |
 
 ## 5. 平台集成检查
 
@@ -278,8 +278,7 @@
 > - 如果存在高风险敏感能力，但用途披露不足或能力边界过宽，不应给出无条件 `通过`。
 > - 如果风险可接受但仍需使用者显式知情，优先给出 `有条件通过` 并附带使用建议。
 
-- [ ] 适合发布到 ClawHub
-- [ ] 适合 YonClaw 发布
+- [ ] 适合 YonClaw 内部发布
 - [ ] 修复后再发布
 
 ```text
