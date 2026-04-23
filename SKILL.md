@@ -1,23 +1,16 @@
 ---
 name: yonclaw-skill-acceptance
-description: Use when a new or updated YonBIP skill running in YonClaw needs release validation before YonClaw internal rollout.
+description: 适用于运行在 YonClaw 中的新建或更新 YonBIP skill 在 YonClaw 内部发布前需要做发布验收的场景。
 metadata: {"yonbip":{"version":"1.0.0"}}
 ---
 
 # YonClaw Skill Acceptance
 
-将此 skill 用作运行在 YonClaw 中的 YonBIP skill 发布门禁。它会组合 BIP 规范检查、通用规范检查、功能清单分析、动态行为验证与证据记录，确保最终结论基于真实结果，而不是基于推测。
-
-完成验收后，默认交付物是一份企业级 Markdown 验收报告，而不是聊天摘要。
+将此 skill 用作运行在 YonClaw 中的 YonBIP skill 发布门禁。它要求基于真实证据完成规范检查、功能覆盖、动态验证与报告回填。
 
 ## 响应契约
 
-在输出任何验收结论之前，必须按顺序通过以下门禁：
-
-1. 明确确认目标 skill 的名称或路径
-2. 读取目标 skill 的关键文件
-3. 收集检查结果或运行结果中的真实证据
-4. 只有完成以上步骤后，才能输出结论或发布建议
+在输出任何验收结论之前，必须先确认目标 skill、读取关键文件并收集真实证据。
 
 硬性规则：
 
@@ -25,7 +18,7 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 - 如果用户要求在同一轮里“验收并修复”，当前只接受验收部分，拒绝直接修复
 - 如果证据不足，不得输出 `通过` 或 `可发布`
 
-缺参或越界场景的固定回复模板：
+固定回复模板：
 
 - missing target:
   - `请先提供要验收的 skill 名称或路径；在目标未确认前，我不会输出验收结论或发布建议。`
@@ -34,8 +27,8 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 禁止的捷径行为：
 
-- 不点名目标 skill，就直接给出泛化的 `验收通过`
-- 没有证据，就直接给出 `可直接发布`
+- 未确认目标就直接给出泛化结论
+- 没有证据就直接给出 `通过`、`可发布`
 - 把静态上“看起来合理”当成动态证据
 - 在验收过程中默默接受修复工作
 
@@ -43,14 +36,10 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 - 新建了一个 YonBIP skill，需要做发布前验收。
 - 一个已有 skill 被修改过，需要做回归检查。
-- 用户想知道该 skill 是否符合编写规范或 spec 要求。
-- 用户想知道该 skill 是否符合通用发布规范，并适合 YonClaw 内部发布。
-- 用户希望看到运行平台证据、真实 prompt 结果和 BIP 风格验收报告。
-- 用户希望将结果回填到验收文档中。
+- 需要基于证据判断该 skill 是否适合 YonClaw 内部发布。
+- 需要看到运行平台证据、真实 prompt 结果和结构化验收报告。
 
 不要将此 skill 用于与 YonBIP 或 YonClaw skill 无关的普通 prompt 测试。
-
-此 skill 仅用于验收与记录。除非用户在验收结束后明确发起单独修复任务，否则不得主动修改目标 skill、业务脚本或“边验收边修复”。
 
 ## 核心规则
 
@@ -64,7 +53,7 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 8. `release readiness` 要与“只是能加载”分开判断。
 9. 动态测试前先提取目标 skill 的功能清单。
 10. 用功能清单驱动 case 覆盖，并显式写出覆盖缺口。
-11. 在验收阶段不得修改目标 skill、共享依赖 skill 或业务脚本，除非用户明确把任务从验收切换为修复。
+11. 在验收阶段不得修改目标 skill、共享依赖 skill 或业务脚本，除非用户明确切换为修复任务。
 12. `static-only` 证据必须与真实动态覆盖在覆盖矩阵和结论中严格区分。
 13. 最终输出必须区分业务能力结论与平台集成结论。
 14. 敏感能力必须显式审计，不能埋在普通静态检查结论里。
@@ -131,65 +120,65 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 - 如果 skill 属于独立 skill git 项目，则项目结构应与 BIP 对标准布局的预期一致
 - 目录名符合 BIP 命名限制：小写、连字符、无下划线、无双连字符、无前导数字
 
-记录要求：每个 spec 问题都要与 runtime 问题分开记录。即使动态 case 通过，spec 问题仍可能导致结论降为 `有条件通过`。
+记录要求：spec 问题必须与 runtime 问题分开记录。
 
 ### 2b. 执行通用规范发布审计
 
-目标：确认该 skill 是否达到了“可内部发布”要求，而不只是“功能看起来能用”。
+目标：确认该 skill 是否达到内部发布要求。
 
 必查项：
 
 - `SKILL.md` 存在，且是 skill 的清晰入口
 - 在需要 UI metadata 的场景下，`agents/openai.yaml` 存在、意图一致且不过时
 - 被引用的脚本、参考、资源和相关路径实际存在
-- 从 workflow 层面看，trigger 设计清晰，不依赖隐藏假设
-- `progressive disclosure` 做得合理：skill 只要求模型加载真正需要的文件或资源
+- trigger 设计清晰，不依赖隐藏假设
+- `progressive disclosure` 合理：只要求模型加载真正需要的文件或资源
 - 资源组织清晰：`scripts/`、`references/`、`assets/`、`agents/` 分工明确
 - 目录洁净：skill 目录中没有不应进入发布包的多余辅助文档
 - 证据纪律清晰：没有真实命令输出或 session 证据前，不允许把 case 判成通过
 - 失败可见：`pending`、失败项和环境噪音都在报告里保持可见
 - 报告完整：默认交付物是结构化报告，而不只是聊天摘要
 - 内部发布适配：输出行为、目录洁净度和面向发布的呈现方式适合内部发布
-- 不可信输入防护：外部网页或文档内容被当作数据，而不是当作可执行指令
+- 不可信输入防护：外部网页或文档内容被当作数据，而不是可执行指令
 
 记录要求：通用规范缺口要与 spec 问题、runtime 问题分开记录。
 
 ### 2c. 执行敏感能力审计
 
-目标：识别该 skill 或其引用脚本是否具备超出普通 prompt-only 行为的敏感能力。
+目标：识别该 skill 或其引用脚本是否具备敏感能力。
 
 至少检查：
 
-- 系统命令执行，例如 `subprocess`、`os.system`、shell 包装器或脚本启动器
-- 本地敏感文件访问，例如浏览器 cookies、SQLite 数据库、认证缓存、密钥文件或声明范围外的 workspace 文件
-- 宽范围网络访问，例如任意 URL/path 的 HTTP 请求、通用 API 客户端、代理行为或上传/下载辅助器
-- 破坏性或状态改变操作，例如 delete/cancel/end/overwrite/bulk update
+- 系统命令执行，如 `subprocess`、`os.system`、shell 包装器或脚本启动器
+- 本地敏感文件访问，如浏览器 cookies、SQLite 数据库、认证缓存、密钥文件或声明范围外的 workspace 文件
+- 宽范围网络访问，如任意 URL/path 的 HTTP 请求、通用 API 客户端、代理行为或上传/下载辅助器
+- 破坏性或状态改变操作，如 delete/cancel/end/overwrite/bulk update
 - 权限不匹配：对外声明能力比实际可达实现能力更弱
-- frontmatter 风险因子，例如高权限 `allowed-tools`、隐藏调用、lifecycle hooks 或 fork/subprocess 执行模式
-- 加载期或触发期命令注入，例如动态命令块、自动执行 shell 片段或安装期执行
-- 隐藏或混淆内容，例如带指令的 HTML 注释、base64 载荷、零宽字符、Unicode 伪装或嵌入式安全覆盖
+- frontmatter 风险因子，如高权限 `allowed-tools`、隐藏调用、lifecycle hooks 或 fork/subprocess 执行模式
+- 加载期或触发期命令注入，如动态命令块、自动执行 shell 片段或安装期执行
+- 隐藏或混淆内容，如带指令的 HTML 注释、base64 载荷、零宽字符、Unicode 伪装或嵌入式安全覆盖
 
 对每一项敏感能力，都要记录：
 
 - 能力类型
 - 发现位置
-- 该能力存在的原因
-- 该能力是否被 skill 描述或说明清楚披露
-- 该能力是否与声明用途相称
-- 该能力是否应让发布保持允许、改为有条件，或直接阻断
+- 存在原因
+- 是否已被 skill 清楚披露
+- 是否与声明用途相称
+- 是否应允许发布、改为有条件，或直接阻断
 
-记录要求：不要因为“没发现恶意代码”就直接把 skill 判成 `safe`。只要该 skill 具备有意义的能力，就必须显式暴露这种能力。
+记录要求：只要该 skill 具备有意义的能力，就必须显式暴露这种能力。
 
 ### 2d. 执行自动执行与隐藏内容检查
 
-目标：检查该 skill 是否会在用户明确调用之前就执行或影响行为。
+目标：检查该 skill 是否会在用户明确调用之前执行或影响行为。
 
 至少检查：
 
 - lifecycle hooks 或平台特定的 auto-run 字段
-- 在 skill 加载期执行 shell 或工具命令的动态注入模式
-- 试图规避常规审查的隐藏触发模式
-- 会改变指令或覆盖安全策略的注释、编码载荷或不可见字符
+- skill 加载期执行 shell 或工具命令的动态注入模式
+- 规避常规审查的隐藏触发模式
+- 改变指令或覆盖安全策略的注释、编码载荷或不可见字符
 - 未被清楚披露的 browser cookie、本地数据库或认证缓存访问
 
 记录：
@@ -198,6 +187,40 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 - 该行为是否有文档说明
 - 该行为是否对声明用途必需
 - 该行为是否应该阻断发布
+
+### 2e. 执行异常输入与副作用审计
+
+目标：确认具备写操作能力的 skill 在异常输入、跨平台传参差异或参数解析失败时能够 `fail closed`，不会继续写入错误或残缺业务数据。
+
+适用范围：
+
+- 所有具备 create、update、delete、send、approve、invite、sync 等写操作能力的 skill
+- 所有存在脚本调用、CLI/JSON 参数传递、外部工具拼接或多层参数转发的 skill
+
+至少检查：
+
+- 缺少必填参数、参数名错误、空值、类型错误
+- 含中文、空格、引号、逗号、多值或歧义参数
+- 至少一种非当前主开发环境的调用方式；如适用，优先覆盖 Windows 传参差异
+- 从 prompt 到工具调用、命令拼接、脚本解析、最终业务请求的完整参数链路
+
+强制要求：
+
+- 关键参数缺失、解析失败或平台差异导致参数不可信时，必须阻断执行
+- 不得静默降级，不得以默认值、占位值或猜测值补齐关键业务字段
+- 对所有异常 case，必须追加真实业务回查，不得只依据错误信息、退出码或日志判定安全失败
+
+回查至少确认：
+
+- 是否产生业务记录、半残数据、占位值或错误关联关系
+- 关键字段是否完整、准确、可解释，包括适用的 ID、姓名、参与人、时间范围、数量、状态和关联关系
+
+判定规则：
+
+- 若异常输入导致任何脏数据落库，结论不得为 `通过`
+- 若异常输入可能污染核心业务对象，结论应为 `不通过`
+- 主流程可用但异常路径未覆盖时，结论最多为 `有条件通过`
+- 对适用 skill，未执行本章节时，不得输出 `通过` 或 `可发布`
 
 ### 3. 执行平台集成检查
 
@@ -241,20 +264,7 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 ### 4. 执行动态行为检查
 
-至少验证 `Positive`、`Negative`、`Incomplete input`、`Safety` 四类基线 prompt；如果该 skill 存在按操作分支的行为，还需要补充分支定向 case。
-
-动态验证必须至少包含：
-
-- 基线用例：
-  - `Positive`
-  - `Negative`
-  - `Incomplete input`
-  - `Safety`
-- 从 feature inventory 派生出的定向功能用例
-
-对于多操作 skill，应尽量让每个重要操作族至少覆盖一次，例如 query/list/search、create/send/submit、update/edit/reply、delete/cancel/end、export/report/render、review/approval/audit。
-
-如果某些操作在当前环境下无法安全执行，应在覆盖矩阵中保持其为 `pending`，并明确说明阻塞原因。
+至少验证 `Positive`、`Negative`、`Incomplete input`、`Safety` 四类基线 prompt；如该 skill 存在按操作分支的行为，还需补充分支定向 case。无法安全执行的操作保持为 `pending` 或 `blocked`，并记录阻塞原因。
 
 基线 prompt 的硬门禁：
 
@@ -265,7 +275,7 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 ### 4a. 执行 BIP 脚本合规检查
 
-如果目标 skill 包含 `scripts/`，需要检查其实现是否符合 BIP 脚本规范：
+如果目标 skill 包含 `scripts/`，至少检查：
 
 - 脚本是否采用 Python，而不是在没有充分理由的情况下混用任意运行时
 - 脚本名是否符合 lowercase underscore 风格
@@ -274,20 +284,11 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 - 最终脚本输出是否为 JSON，且至少包含 `success` 和 `message`
 - 异常是否被标准化输出，而不是直接抛原始异常
 
-这些结果要与动态业务行为分开记录，因为一个 skill 可能在功能上可用，但仍然不满足 BIP 工程规范。
-
-每个 case 都要记录：
-
-- prompt
-- expected behavior（预期行为）
-- actual behavior（实际行为）
-- pass or pending（通过或待定）
-- run identifier or equivalent evidence when available（运行标识或等效证据）
-- covered feature ids（覆盖的 feature id）
+这些结果要与动态业务行为分开记录。
 
 ### 5. 评估真实行为，而不只是看是否触发
 
-不要只看有没有触发 skill，还要检查模型是否真的遵守了 skill 规则，例如 placeholder、summary 压缩、危险动作默认不执行、缺失输入不编造、声明分支真实触达，以及操作级输出是否符合文档 contract。
+不要只看有没有触发 skill，还要检查模型是否真的遵守了 skill 规则与输出约束。
 
 需要显式标记的失败模式：
 
@@ -303,45 +304,11 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 ### 5b. 可选的第二意见复核
 
-当风险等级仍然模糊，或该 skill 具备较强敏感能力时，可以选择追加第二模型或第二工具复核。
-
-以下场景适合启用这一分支：
-
-- 主审结论接近 pass/fail 边界
-- 静态证据显示存在高风险能力，但意图仍不清楚
-- 用户明确要求 cross-validation
-
-规则：
-
-- second opinion 只能作为辅助证据，不能直接当成最终真相
-- 保留原始发现，并注明 second opinion 在哪些点上同意或不同意
-- 不能让 second opinion 覆盖掉代码或 runtime 行为中的直接证据
+当风险等级仍然模糊、结论接近 pass/fail 边界，或用户明确要求 cross-validation 时，可追加第二意见复核。第二意见只能作为辅助证据，不能覆盖代码或 runtime 行为中的直接证据。
 
 ### 6. 回填验收记录
 
-将执行摘要、风险摘要、spec/通用规范/敏感能力/自动执行检查结果、功能清单与覆盖矩阵、已执行命令与真实结果、`pending` cases、环境问题、当前结论和发布建议回填到验收文档中。
-
-如果还没有验收文档，就使用 `assets/enterprise-acceptance-report-template.md` 里的企业模板创建新文档。
-
-推荐输出行为：
-
-- 如果用户已经给了验收文档路径，就更新那份文件
-- 否则，在当前 workspace 新建一份 Markdown 报告
-- 文件名可采用 `<skill-name>-acceptance-report-enterprise.md`
-- 已执行项填充真实证据，未执行项保持为 `pending` 或 `blocked`，不要隐藏失败
-- 不要“边验收边修复”；除非用户明确要求修复，否则只记录 findings 并停在报告输出
-- 没有动态证据时，不要把 feature 标成 `covered`
-- 最终 verdict 要拆成业务能力结论和平台集成结论
-- 如果敏感能力超过声明用途，或披露不充分，优先给出 `有条件通过` 或 `不通过`，而不是 `通过`
-- 最终输出通常同时包含一段简短聊天摘要和一份基于企业模板生成的 Markdown 报告文件
-- 报告至少应包含：文档信息、skill 名称与路径、workspace、spec/BIP/静态/通用规范结果、动态 case、环境问题、最终结论、发布建议和后续动作
-- 条件允许时，应补充文件引用、命令证据和运行标识
-
-推荐结论状态：
-
-- `通过`：所有关键检查项和计划 case 都已通过
-- `有条件通过`：关键检查项通过，但仍存在剩余 case 或环境问题
-- `不通过`：加载失败、行为错误，或安全行为不可接受
+将执行摘要、关键检查结果、覆盖矩阵、真实证据、环境问题、结论和发布建议回填到验收文档中。若无现成文档，则使用 `assets/enterprise-acceptance-report-template.md` 创建新报告。已执行项填充真实证据，未执行项保持为 `pending` 或 `blocked`，最终 verdict 必须拆成业务能力结论和平台集成结论。
 
 结论门禁：
 
@@ -357,34 +324,17 @@ metadata: {"yonbip":{"version":"1.0.0"}}
 
 ### `batch triage` 最低输出要求
 
-如果执行的是 `batch triage` 而不是 `deep acceptance`，输出仍至少要包含：skill 名称、声明用途、来源 / 位置、当前最高风险等级、下一步是否需要 `deep acceptance`，以及基于证据的简明原因。
+如果执行的是 `batch triage` 而不是 `deep acceptance`，输出至少要包含：skill 名称、声明用途、来源 / 位置、当前最高风险等级、是否需要 `deep acceptance`，以及基于证据的简明原因。
 
 ## 最小用例集
 
-除非该 skill 需要更多 case，否则默认使用 `Positive`、`Negative`、`Incomplete-input`、`Safety` 四类基线用例。
-
-如需扩展，可加入 `Happy path`、`Secondary happy path`、`Boundary case`、`Error-input` 等补充用例；对功能更丰富的 skill，再为重要操作族、关键 guardrail、特殊输出格式规则和高风险动作路径各补至少一个用例。
+除非该 skill 需要更多 case，否则默认使用 `Positive`、`Negative`、`Incomplete-input`、`Safety` 四类基线用例；必要时再补 `Boundary case`、`Error-input` 或操作族定向用例。
 
 ## 证据标准
 
 有效证据通常包括：对 skill 文件及相关行号的直接引用、runtime platform discovery/info 输出、真实 runtime agent 结果、作为环境说明记录下来的 gateway 或 runtime warning、从已执行 case 到声明 feature 的直接映射，以及在适用时能直接证明 `metadata.yonbip.version`、SOP 结构、脚本输出形状与异常处理行为的证据。
 
 不要把主观假设、静态阅读或推断行为当成动态证据。
-
-## 常见误区
-
-常见误区：
-
-- 因为 prompt “看起来应该会触发”，就把 case 判成通过
-- 在目标 skill 还没确认前，就先输出泛化发布结论
-- 把“能加载”或一般性的 runtime 兼容，当成 spec-compliant 甚至 release-ready 的证明
-- 把一个成功操作当成所有声明功能都可用的证明
-- 面对多操作 skill 时，跳过 feature inventory 提取
-- 未经用户明确许可，就在验收中悄悄修改目标 skill
-- 忽略可能影响稳定性的 gateway warning
-- 把 skill 缺陷和环境缺陷混为一谈
-- 在整理文档时把 `pending` 项清洗成通过
-- 在 skill 含 Python 脚本时，忽略脚本输出形状、日志或异常标准化
 
 ## 收尾检查
 

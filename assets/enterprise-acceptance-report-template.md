@@ -146,6 +146,23 @@
 | 混淆内容 / 编码载荷 / 零宽字符 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
 | 安全策略覆盖或提示词注入迹象 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
 
+### 8.3 异常输入与副作用审计
+
+| 检查项 | 结果 | 风险级别 | 说明 |
+|---|---|---|---|
+| 异常输入覆盖是否充分 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+| 跨平台传参差异是否已验证 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+| 参数链路是否存在丢失/错位/误转义 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+| 失败时是否正确阻断执行 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+| 异常 case 后是否完成真实业务回查 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+| 是否发现脏数据、占位值或错误关联 | `<pass-or-fail-or-na>` | `<low-medium-high>` | `<note>` |
+
+> 审计提示：
+>
+> - 对具备写操作能力的 skill，不得只验证 happy path。
+> - 若异常输入导致 `未知用户`、空参与人、默认占位值、半残数据或错误关联关系，应在结论中直接降级处理。
+> - 不得仅依据退出码、日志或错误文案认定“安全失败”，必须结合真实业务回查结果。
+
 ## 9. 功能与覆盖验证
 
 ### 9.1 功能清单与 Action Inventory
