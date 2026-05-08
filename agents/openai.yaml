@@ -1,4 +1,4 @@
 interface:
   display_name: "YonClaw Skill Acceptance"
   short_description: "Release-gate validation for YonBIP/YonClaw skills"
-  default_prompt: "Use $yonclaw-skill-acceptance to run a release-gate audit for this YonBIP/YonClaw skill, including BIP spec checks, general convention checks, feature coverage, script compliance checks, dynamic acceptance, and a strict enterprise Markdown acceptance report."
+  default_prompt: "Use $yonclaw-skill-acceptance to run a release-gate audit for this YonBIP/YonClaw skill. Resolve references/report-compliance-rules.md, assets/enterprise-acceptance-report-template.md, and scripts/validate_report.py relative to the yonclaw-skill-acceptance skill directory, not the target skill directory. Always write a formal report file; never replace it with a chat-only summary. After writing the report, run python3 scripts/validate_report.py <report-path>. Apply the verdict and contradiction gates; do not mark pass/internal-release if required evidence is missing, cross-platform parameter verification is pending, or the report validator fails."

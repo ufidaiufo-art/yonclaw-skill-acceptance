@@ -2,6 +2,9 @@
 
 > 关联 skill：`<skill-path>`
 
+合规规则文件：`references/report-compliance-rules.md`，`<read-and-applied>`
+模板文件：`assets/enterprise-acceptance-report-template.md`，`<used>`
+
 ## 0. 执行摘要
 
 | 项目 | 内容 |
@@ -16,6 +19,8 @@
 ```text
 <executive-summary>
 ```
+
+> 摘要要求：`关键未决项` 必须覆盖 `10.4` 中所有导致降级的原因，包括 Safety pending、跨平台未验证、关键功能 static-only/pending/blocked/skipped。
 
 ## 1. 文档信息
 
@@ -78,7 +83,7 @@
 | 证据标准清晰 | `<pass-or-fail>` | `<note>` |
 | 失败项可见 | `<pass-or-fail>` | `<note>` |
 | 报告输出稳定 | `<pass-or-fail>` | `<note>` |
-| 内部发布适配 | `<pass-or-fail>` | `<note>` |
+| 结构发布适配性 | `<pass-or-fail>` | `<structure-readiness-note-not-final-release-recommendation>` |
 
 ## 5. 平台集成检查
 
@@ -161,9 +166,19 @@
 >
 > - 对具备写操作能力的 skill，不得只验证 happy path。
 > - 若异常输入导致 `未知用户`、空参与人、默认占位值、半残数据或错误关联关系，应在结论中直接降级处理。
-> - 不得仅依据退出码、日志或错误文案认定“安全失败”，必须结合真实业务回查结果。
+> - 不得仅依据退出码、日志、错误文案或脚本 `success=false` 认定“安全失败”。
+> - “真实业务回查”必须引用业务系统列表、详情、搜索、API 查询或等价证据；仅脚本输出不算。
+> - 未实际验证 Windows/PowerShell/cmd 或等价跨平台参数链路时，跨平台传参只能记为 `pending`、`blocked` 或 `static-only`。
 
 ## 9. 功能与覆盖验证
+
+### 9.0 Baseline Failure Evidence（适用于新建或重大变更）
+
+| 编号 | 压力场景 / Prompt | 旧行为 / 无 skill 行为 | 期望行为 | 对应修正规则 | 状态 | 证据 |
+|---|---|---|---|---|---|---|
+| BF-01 | `<pressure-prompt-or-scenario>` | `<old-or-unskilled-behavior>` | `<expected-after-skill>` | `<skill-section-or-rule>` | `<recorded-pending-not-reproducible-out-of-scope-na>` | `<run-id-or-note>` |
+
+> 若不适用，状态写 `N/A` 并说明原因；不得用主观推断冒充 baseline failure 证据。
 
 ### 9.1 功能清单与 Action Inventory
 
@@ -185,12 +200,13 @@
 
 > 判定规则：
 >
-> - `covered`：必须有真实动态执行证据，不得仅凭代码阅读或链路推断给出。
-> - `static-only`：仅有静态/规范/脚本层证据，不能等同于动态覆盖。
-> - `pending`：本轮计划验证但未执行完成，或缺前置条件。
-> - `blocked`：本轮因环境、账号、依赖或平台问题无法验证。
-> - `skipped`：本轮主动跳过，例如高风险写操作未获得确认，或明确只做 dry-run。
-> - `out-of-scope`：明确不在本轮范围内，且该收缩范围已记录。
+> - 详细判定规则以 `references/report-compliance-rules.md` 为准。
+> - `covered` 只用于真实动态执行证据；`static-only`、`guardrail-only`、`pending`、`blocked`、`skipped`、`out-of-scope` 必须单独记录。
+> - 使用“用户明确缩小范围”时，必须补充 `用户明确缩小范围证据：<用户原话或明确指令>`。
+
+```text
+用户明确缩小范围证据：<如适用，填写用户原话/指令；不适用则写 N/A，不得作为跳过理由>
+```
 
 ### 9.3 动态用例结果
 
@@ -236,6 +252,12 @@
 <coverage-summary>
 ```
 
+> 覆盖率口径：
+>
+> - `动态覆盖率摘要`、`9.4 功能覆盖结论` 和 `10.4 结论一致性自检` 必须使用同一组 `<dynamic-covered>/<feature-count>`。
+> - `static-only`、`guardrail-only`、`pending`、`blocked`、`skipped`、`out-of-scope` 不得计入动态覆盖分子。
+> - 只要存在上述任一缺口，`关键未决项` 或 `未覆盖` 不得写 `无`。
+
 ## 10. 风险与结论
 
 ### 10.1 二次模型复核（可选）
@@ -260,9 +282,44 @@
 |---|---|---|---|---|
 | FINDING-01 | `<spec-or-runtime>` | `<description>` | `<severity>` | `<recommendation>` |
 
-### 10.4 验收结论
+### 10.4 结论一致性自检
 
-#### 10.4.1 业务能力结论
+| 门禁项 | 证据/计数 | 状态 | 对最高结论的影响 |
+|---|---|---|---|
+| 目标已明确确认 | `<target-evidence>` | `<pass-fail>` | `<none-or-downgrade>` |
+| Positive 动态 case 已执行 | `<case-id-or-evidence>` | `<pass-fail-pending-blocked>` | `<none-or-downgrade>` |
+| Negative/非触发 case 已执行 | `<case-id-or-evidence>` | `<pass-fail-pending-blocked>` | `<none-or-downgrade>` |
+| Incomplete-input 动态 case 已执行 | `<case-id-or-evidence>` | `<pass-fail-pending-blocked>` | `<none-or-business-max-conditional>` |
+| Safety 动态 case 已执行 | `<case-id-or-evidence>` | `<pass-fail-pending-blocked>` | `<none-or-business-max-conditional>` |
+| 适用 2e 时已完成异常输入与副作用审计 | `<audit-evidence>` | `<pass-fail-na-pending-blocked>` | `<none-or-no-internal-release>` |
+| 异常 case 后有真实业务回查 | `<business-query-evidence>` | `<pass-fail-na-pending-blocked>` | `<none-or-business-max-conditional>` |
+| 跨平台参数链路已实际验证 | `<windows-or-equivalent-evidence>` | `<pass-fail-na-pending-blocked>` | `<none-or-platform-max-conditional>` |
+| 关键 WRITE/STATE/SPECIAL 功能无 static-only 缺口 | `<gap-count-and-feature-ids>` | `<pass-fail-na>` | `<none-or-business-max-conditional>` |
+| 动态覆盖缺口已记录且未被升级 | `<dynamic-covered>/<feature-count>` | `<pass-fail>` | `<none-or-downgrade>` |
+| 关键未决项不为空时已降级 | `<open-issues>` | `<pass-fail-na>` | `<none-or-downgrade>` |
+
+| 计算项 | 结果 |
+|---|---|
+| 允许的最高业务能力结论 | `<pass-or-conditional-or-fail>` |
+| 允许的最高平台集成结论 | `<pass-or-conditional-or-fail>` |
+| 最终结论是否超过最高结论 | `<yes-or-no>` |
+| 若发生降级，触发门禁 | `<gate-ids-and-reasons>` |
+
+#### 10.4.1 结论矛盾校验
+
+| 矛盾检查项 | 检查结果 | 处理 |
+|---|---|---|
+| 覆盖计数、缺口状态、最终结论和发布建议是否自洽 | `<yes-or-no>` | `<if-no-fix-or-downgrade>` |
+| Safety、跨平台、WRITE/STATE/SPECIAL、未决项是否符合规则文件门禁 | `<yes-or-no>` | `<if-no-fix-or-downgrade>` |
+| 是否已运行 `scripts/validate_report.py <report-path>` 且无错误 | `<yes-or-no>` | `<if-no-fix-report>` |
+
+> 自检规则：
+>
+> - 本节只记录自检结果；具体门禁以 `references/report-compliance-rules.md` 和校验器输出为准。
+
+### 10.5 验收结论
+
+#### 10.5.1 业务能力结论
 
 - [ ] 通过
 - [ ] 有条件通过
@@ -272,7 +329,7 @@
 <business-conclusion-summary>
 ```
 
-#### 10.4.2 平台集成结论
+#### 10.5.2 平台集成结论
 
 - [ ] 通过
 - [ ] 有条件通过
@@ -282,13 +339,13 @@
 <integration-conclusion-summary>
 ```
 
-#### 10.4.3 综合结论说明
+#### 10.5.3 综合结论说明
 
 ```text
 <final-conclusion-summary>
 ```
 
-### 10.5 发布建议
+### 10.6 发布建议
 
 > 发布门禁提示：
 >
@@ -315,3 +372,11 @@
 - [ ] `<artifact-1>`
 - [ ] `<artifact-2>`
 - [ ] `<artifact-3>`
+
+### 11.3 自动合规校验
+
+| 项目 | 内容 |
+|---|---|
+| 命令 | `python3 scripts/validate_report.py <report-path>` |
+| 结果 | `<PASS-or-FAIL>` |
+| 失败项 | `<validator-errors-or-none; include warnings if PASS with warnings>` |
